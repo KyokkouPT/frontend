@@ -1,4 +1,5 @@
 import { createServer, request as httpRequest } from "node:http";
+import { request as httpsRequest } from "node:https";
 import next from "next";
 
 /**
@@ -26,9 +27,9 @@ function isTracker(pathname) {
 }
 
 function proxyTracker(req, res) {
-  const upstream = httpRequest(
+  const requestFn = backend.protocol === "https:" ? httpsRequest : httpRequest;
+  const upstream = requestFn(
     {
-      protocol: backend.protocol,
       hostname: backend.hostname,
       port: backend.port,
       path: req.url,
