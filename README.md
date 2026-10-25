@@ -7,7 +7,7 @@
 - 本地开发：Next rewrites 把 `/api`、Tracker、RSS、下载转发到后端 `31001`
 - 生产：前端 Nginx 直接反代这些路径，并注入 `X-Kyou-Secret`（后端 Nginx 校验）
 
-> 当前进度：Phase 3 纵切（Tracker + H&R + 经济 + RSS）。登录、首页、规则、我的概览、浏览、详情、上传、审核台、通知、做种/下载/魔力值/RSS 已接真实 API；社区其余部分与 Staff 其余页面按后续纵切接入。
+> 当前进度：Phase 4 纵切（社区：邀请注册 + 求种 + 排行榜 + 用户主页）。登录、首页、规则、我的概览、浏览、详情、上传、审核台、通知、做种/下载/魔力值/RSS、注册、邀请、求种、排行、用户主页已接真实 API；2FA、账号设置与 Staff 其余页面按下一轮接入。
 
 ## 设计来源（只读）
 
@@ -17,7 +17,7 @@ UI 来自仓库外层的 `web/` v0 原型，**不复制 fixture 进本仓库**�
 - 已适配：导航、站点名、页脚、计数、当前用户全部来自 `/api/v1/bootstrap`；删除了硬编码的 `SITE_NAV`、`ME`、`SITE`、`STATS`、`AD_SLOTS` 等 fixture
 - 未移植：`lib/site.ts`、`lib/me.ts`、`lib/staff.ts`、`lib/users.ts`、`lib/torrents.ts` 以及依赖它们的业务页面（按纵切逐个接 API）
 
-## 页面（Phase 3）
+## 页面（Phase 4）
 
 | 路由 | 说明 | 数据来源 |
 | --- | --- | --- |
@@ -34,6 +34,11 @@ UI 来自仓库外层的 `web/` v0 原型，**不复制 fixture 进本仓库**�
 | `/me/leeching` | 正在下载：状态与做种义务提示 | `/api/v1/me` |
 | `/me/bonus` | 魔力值：余额、每小时产出、账本、兑换、冻结提示 | `/api/v1/me/bonus` |
 | `/me/rss` | 个人 RSS 地址与复制 | `/api/v1/me/rss` |
+| `/signup` | 注册：邀请码、规则确认、自动登录 | `/api/v1/auth/signup` |
+| `/me/invite` | 邀请码列表/生成/复制 | `/api/v1/me/invites` |
+| `/requests` | 求种列表、发布（冻结悬赏）、取消、Staff 结算 | `/api/v1/requests` |
+| `/top` | 用户与种子榜单（上传/魔力/做种/种子表现） | `/api/v1/top` |
+| `/u/[name]` | 公开用户主页与最近发布 | `/api/v1/users/:name` |
 
 空状态、错误状态、加载状态均已实现：API 失败时显示 problem+json 文案与排查提示，不静默回退到假数据。
 
@@ -121,4 +126,4 @@ pnpm 11 只从 `pnpm-workspace.yaml` 读取 build scripts 严格度设置。本�
 
 ## 待移植页面（按纵切）
 
-求种/排行/设置/站务其余页面 → 申诉/2FA。规范见仓库外 `docs/19-frontend-spec.md`。
+2FA/账号设置、Staff 举报/反作弊/审计/申诉，以及 SMTP 邮件偏好。规范见仓库外 `docs/19-frontend-spec.md`。

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { LoginResponse, SiteRegistration } from "@kyokkou/contracts";
 import { ApiClientError, apiPost } from "@/lib/api/client";
@@ -88,9 +89,16 @@ export function LoginForm({
         </Button>
 
         <p className="text-center text-xs leading-relaxed text-fg-2">
-          {registration?.open
-            ? "注册已开放；注册页面将在后续纵切接入，当前可使用 seed 账号登录。"
-            : (registration?.closed_message ?? "登录信息仅用于本站。")}
+          {registration?.open || registration?.invite_registration_enabled ? (
+            <>
+              还没有账号？{" "}
+              <Link href="/signup" className="font-medium text-accent hover:underline">
+                使用邀请码注册
+              </Link>
+            </>
+          ) : (
+            (registration?.closed_message ?? "登录信息仅用于本站。")
+          )}
         </p>
       </form>
     </>
