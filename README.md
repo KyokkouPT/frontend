@@ -7,7 +7,7 @@
 - 本地开发：Next rewrites 把 `/api`、Tracker、RSS、下载转发到后端 `31001`
 - 生产：前端 Nginx 直接反代这些路径，并注入 `X-Kyou-Secret`（后端 Nginx 校验）
 
-> 当前进度：Phase 2 纵切（目录 + 上传审核）。登录、首页、规则、我的概览、浏览、详情、上传、审核台、通知已接真实 API；Tracker、经济、社区其余部分与 Staff 其余页面按后续纵切接入。
+> 当前进度：Phase 3 纵切（Tracker + H&R + 经济 + RSS）。登录、首页、规则、我的概览、浏览、详情、上传、审核台、通知、做种/下载/魔力值/RSS 已接真实 API；社区其余部分与 Staff 其余页面按后续纵切接入。
 
 ## 设计来源（只读）
 
@@ -17,7 +17,7 @@ UI 来自仓库外层的 `web/` v0 原型，**不复制 fixture 进本仓库**�
 - 已适配：导航、站点名、页脚、计数、当前用户全部来自 `/api/v1/bootstrap`；删除了硬编码的 `SITE_NAV`、`ME`、`SITE`、`STATS`、`AD_SLOTS` 等 fixture
 - 未移植：`lib/site.ts`、`lib/me.ts`、`lib/staff.ts`、`lib/users.ts`、`lib/torrents.ts` 以及依赖它们的业务页面（按纵切逐个接 API）
 
-## 页面（Phase 1）
+## 页面（Phase 3）
 
 | 路由 | 说明 | 数据来源 |
 | --- | --- | --- |
@@ -30,6 +30,10 @@ UI 来自仓库外层的 `web/` v0 原型，**不复制 fixture 进本仓库**�
 | `/upload` | 发布：文件、分区字段、promo、标签（登录守卫） | `POST /api/v1/torrents` |
 | `/staff/review` | 审核台：队列、通过/驳回/退回（staff.review） | `/api/v1/staff/review` |
 | `/notifications` | 站内通知：未读、单条/全部已读 | `/api/v1/notifications` |
+| `/me/seeding` | 做种列表：上传/下载/分享率/做种时长 | `/api/v1/me` |
+| `/me/leeching` | 正在下载：状态与做种义务提示 | `/api/v1/me` |
+| `/me/bonus` | 魔力值：余额、每小时产出、账本、兑换、冻结提示 | `/api/v1/me/bonus` |
+| `/me/rss` | 个人 RSS 地址与复制 | `/api/v1/me/rss` |
 
 空状态、错误状态、加载状态均已实现：API 失败时显示 problem+json 文案与排查提示，不静默回退到假数据。
 
@@ -43,6 +47,8 @@ UI 来自仓库外层的 `web/` v0 原型，**不复制 fixture 进本仓库**�
 - 下载：列表/详情使用后端返回的 `download_url`（`/t/:id/download`）作为 `<a>`；未登录时指向 `/login?next=/t/:id`，不做假按钮。
 - 上传：`apiUpload` 发送 `FormData`（浏览器生成 multipart boundary），字段来自分区配置；成功后跳 `/me?uploaded=…` 显示提示。
 - 本地 rewrite 只代理 `/t/:id/download`，不能把 `/t/[id]` 页面路由代理到后端。
+- 兑换：`apiPost` 带 `Idempotency-Key`，成功后 `router.refresh()` 重新拉余额与账本；冻结/余额不足展示 problem+json 文案。
+- RSS 说明页在 `/me/rss`；后端 RSS 端点是 `/rss`、`/rss.xml`。**本地 next rewrite 会破坏 announce 的二进制 query**，Tracker 验收请直连后端 31001。
 
 ## 启动
 
@@ -91,6 +97,7 @@ frontend/
 │   ├── ui/                 # button badge panel field stat avatar data-table…
 │   ├── providers/          # bootstrap context
 │   ├── browse-explorer.tsx upload-form.tsx review-queue.tsx notifications-list.tsx
+│   ├── snatch-table.tsx bonus-exchange.tsx rss-copy.tsx
 │   ├── login-form.tsx
 │   └── shell 组件（app-shell/staff-shell/top-bar/sidebar/footer/mobile-*）
 ├── lib/
@@ -114,4 +121,4 @@ pnpm 11 只从 `pnpm-workspace.yaml` 读取 build scripts 严格度设置。本�
 
 ## 待移植页面（按纵切）
 
-我的做种/下载/魔力值 → 求种/排行/设置/站务其余页面 → 申诉/2FA。规范见仓库外 `docs/19-frontend-spec.md`。
+求种/排行/设置/站务其余页面 → 申诉/2FA。规范见仓库外 `docs/19-frontend-spec.md`。

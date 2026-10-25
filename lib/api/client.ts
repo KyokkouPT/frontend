@@ -76,14 +76,20 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   return (await response.json()) as T;
 }
 
-export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
+export async function apiPost<T>(
+  path: string,
+  body?: unknown,
+  options: { idempotencyKey?: string } = {},
+): Promise<T> {
   const csrf = await ensureCsrf();
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+    "x-csrf-token": csrf,
+  };
+  if (options.idempotencyKey) headers["idempotency-key"] = options.idempotencyKey;
   return apiFetch<T>(path, {
     method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-csrf-token": csrf,
-    },
+    headers,
     body: body === undefined ? "{}" : JSON.stringify(body),
   });
 }
