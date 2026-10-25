@@ -18,9 +18,17 @@ export const metadata = { title: "我的" };
 
 const ROLE_LABEL = { user: "用户", moderator: "版主", admin: "管理员" } as const;
 
-export default async function MePage() {
+export default async function MePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ uploaded?: string | string[] }>;
+}) {
   const bootstrap = await getBootstrap();
   if (!bootstrap?.me) redirect("/login?next=/me");
+
+  const params = await searchParams;
+  const uploadedRaw = Array.isArray(params.uploaded) ? params.uploaded[0] : params.uploaded;
+  const uploaded = uploadedRaw === "approved" || uploadedRaw === "pending" ? uploadedRaw : null;
 
   let me: MeResponse;
   try {
@@ -52,6 +60,14 @@ export default async function MePage() {
         count={`#${String(user.id)}`}
         description={`加入于 ${formatDate(user.created_at)} · ${user.username}`}
       />
+
+      {uploaded && (
+        <Notice tone="info" className="mb-4">
+          {uploaded === "approved"
+            ? "种子已通过审核并公开，可以在浏览页看到它。"
+            : "种子已提交，正在等待审核；结果会通过站内通知发送。"}
+        </Notice>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
         <Panel title="身份">

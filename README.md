@@ -7,7 +7,7 @@
 - 本地开发：Next rewrites 把 `/api`、Tracker、RSS、下载转发到后端 `31001`
 - 生产：前端 Nginx 直接反代这些路径，并注入 `X-Kyou-Secret`（后端 Nginx 校验）
 
-> 当前进度：Phase 1 纵切（bootstrap + auth + shell）。登录、首页、规则、我的概览已接真实 API；目录、上传、Tracker、经济、社区、Staff 按后续纵切接入。
+> 当前进度：Phase 2 纵切（目录 + 上传审核）。登录、首页、规则、我的概览、浏览、详情、上传、审核台、通知已接真实 API；Tracker、经济、社区其余部分与 Staff 其余页面按后续纵切接入。
 
 ## 设计来源（只读）
 
@@ -25,6 +25,11 @@ UI 来自仓库外层的 `web/` v0 原型，**不复制 fixture 进本仓库**�
 | `/rules` | 注册、审核、Tracker、H&R、分区规范 | `/api/v1/rules` |
 | `/login` | 登录（真实表单 + CSRF） | `/api/v1/auth/csrf`、`/api/v1/auth/login` |
 | `/me` | 我的概览（登录守卫；未登录跳 `/login?next=/me`） | `/api/v1/me` |
+| `/browse` | 浏览：分区/分类/促销/字段/搜索/排序/加载更多 | `/api/v1/torrents` |
+| `/t/[id]` | 种子详情：规格、文件树、描述、相关版本、下载 | `/api/v1/torrents/:id` |
+| `/upload` | 发布：文件、分区字段、promo、标签（登录守卫） | `POST /api/v1/torrents` |
+| `/staff/review` | 审核台：队列、通过/驳回/退回（staff.review） | `/api/v1/staff/review` |
+| `/notifications` | 站内通知：未读、单条/全部已读 | `/api/v1/notifications` |
 
 空状态、错误状态、加载状态均已实现：API 失败时显示 problem+json 文案与排查提示，不静默回退到假数据。
 
@@ -35,6 +40,9 @@ UI 来自仓库外层的 `web/` v0 原型，**不复制 fixture 进本仓库**�
 - 浏览器写请求：`lib/api/client.ts` 的 `apiFetch`/`apiPost`（Cookie + `x-csrf-token`）；登录页先 `ensureCsrf`。
 - 登录成功 `router.replace(next)` + `router.refresh()`；登出是认证边界，使用整页导航重建 bootstrap。
 - bootstrap 失败时壳仍可渲染：站点名/导航有中性 fallback，页面显示错误状态。
+- 下载：列表/详情使用后端返回的 `download_url`（`/t/:id/download`）作为 `<a>`；未登录时指向 `/login?next=/t/:id`，不做假按钮。
+- 上传：`apiUpload` 发送 `FormData`（浏览器生成 multipart boundary），字段来自分区配置；成功后跳 `/me?uploaded=…` 显示提示。
+- 本地 rewrite 只代理 `/t/:id/download`，不能把 `/t/[id]` 页面路由代理到后端。
 
 ## 启动
 
@@ -75,14 +83,16 @@ frontend/
 ├── app/
 │   ├── layout.tsx          # 主题首帧脚本、字体、skip-link
 │   ├── globals.css         # 设计 token + 主题覆盖
-│   ├── (site)/             # 站点壳路由组：首页 / 规则 / 我的
-│   ├── (auth)/             # 认证壳路由组：登录
+│   ├── (site)/             # 站点壳：首页 / 浏览 / 详情 / 上传 / 规则 / 我的 / 通知
+│   ├── (auth)/             # 认证壳：登录
+│   ├── (staff)/            # 站务壳：审核台
 │   └── error/not-found/loading.tsx
 ├── components/
 │   ├── ui/                 # button badge panel field stat avatar data-table…
 │   ├── providers/          # bootstrap context
+│   ├── browse-explorer.tsx upload-form.tsx review-queue.tsx notifications-list.tsx
 │   ├── login-form.tsx
-│   └── shell 组件（app-shell/top-bar/sidebar/footer/mobile-*）
+│   └── shell 组件（app-shell/staff-shell/top-bar/sidebar/footer/mobile-*）
 ├── lib/
 │   ├── api/{server,client}.ts
 │   ├── bootstrap.ts  nav.ts  nav-icons.ts  nav-store.ts  format.ts  cn.ts
@@ -104,4 +114,4 @@ pnpm 11 只从 `pnpm-workspace.yaml` 读取 build scripts 严格度设置。本�
 
 ## 待移植页面（按纵切）
 
-浏览/详情/上传/审核 → 我的做种/下载/魔力值 → 求种/排行/通知/设置/站务 → 申诉/2FA。规范见仓库外 `docs/19-frontend-spec.md`。
+我的做种/下载/魔力值 → 求种/排行/设置/站务其余页面 → 申诉/2FA。规范见仓库外 `docs/19-frontend-spec.md`。

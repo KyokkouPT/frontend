@@ -1,25 +1,28 @@
+import Link from "next/link";
+import type { ReactNode } from "react";
 import type { TorrentSummary } from "@kyokkou/contracts";
-import { ArrowDown, ArrowUp, Check } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, Download, LogIn } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { formatBytes, formatRelativeTime } from "@/lib/format";
 import { Avatar } from "./ui/avatar";
 import { PromoBadge } from "./promo-badge";
 
-/**
- * 种子列表行。Phase 1 只有展示（详情/下载在目录纵切接入），
- * 因此不渲染无效的链接与下载按钮。
- */
-export function TorrentRow({ torrent }: { torrent: TorrentSummary }) {
+/** 种子列表行：标题进详情，下载按钮按登录态指向下载或登录。 */
+export function TorrentRow({ torrent, canDownload = false }: { torrent: TorrentSummary; canDownload?: boolean }) {
   const specs = [torrent.section.name, torrent.category.name, ...Object.values(torrent.meta).map(String)]
     .filter((value) => value.length > 0)
     .slice(0, 4);
+
+  const actionHref = canDownload
+    ? torrent.download_url
+    : `/login?next=${encodeURIComponent(`/t/${String(torrent.id)}`)}`;
 
   return (
     <article
       className={cn(
         "grid items-center gap-4 rounded-md border border-line bg-surface-1 py-2.5 pr-3 pl-4",
         "transition-colors hover:border-line-strong hover:bg-surface-2",
-        "grid-cols-[44px_1fr] md:grid-cols-[44px_1fr_auto_auto]",
+        "grid-cols-[44px_1fr_44px] sm:grid-cols-[44px_1fr_auto_44px] md:grid-cols-[44px_1fr_auto_auto_44px]",
         torrent.owned && "border-l-2 border-l-accent",
       )}
     >
@@ -27,9 +30,12 @@ export function TorrentRow({ torrent }: { torrent: TorrentSummary }) {
 
       <div className="min-w-0">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="truncate text-[13.5px] leading-5 font-semibold tracking-[-0.005em]">
+          <Link
+            href={`/t/${String(torrent.id)}`}
+            className="truncate text-[13.5px] leading-5 font-semibold tracking-[-0.005em] hover:text-accent"
+          >
             {torrent.name}
-          </span>
+          </Link>
           {torrent.tags.slice(0, 2).map((tag, index) => (
             <span
               key={tag}
@@ -86,11 +92,21 @@ export function TorrentRow({ torrent }: { torrent: TorrentSummary }) {
           {torrent.files_count} 个文件
         </small>
       </div>
+
+      <div className="grid place-items-center">
+        <a
+          href={actionHref}
+          aria-label={canDownload ? `下载种子 ${torrent.name}` : "登录后下载"}
+          className="grid size-11 place-items-center rounded-sm text-fg-2 transition-colors hover:bg-accent/12 hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent md:size-[34px]"
+        >
+          {canDownload ? <Download className="size-4" /> : <LogIn className="size-4" />}
+        </a>
+      </div>
     </article>
   );
 }
 
-function Metric({ icon, value }: { icon: React.ReactNode; value: number }) {
+function Metric({ icon, value }: { icon: ReactNode; value: number }) {
   return (
     <span
       className={cn(

@@ -87,3 +87,21 @@ export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
     body: body === undefined ? "{}" : JSON.stringify(body),
   });
 }
+
+/** multipart 上传：不手动设置 content-type，交给浏览器生成 boundary。 */
+export async function apiUpload<T>(path: string, form: FormData): Promise<T> {
+  const csrf = await ensureCsrf();
+  const response = await fetch(path, {
+    method: "POST",
+    body: form,
+    credentials: "include",
+    cache: "no-store",
+    headers: {
+      accept: "application/json",
+      "x-csrf-token": csrf,
+    },
+  });
+
+  if (!response.ok) throw await toApiError(response);
+  return (await response.json()) as T;
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Bell } from "lucide-react";
 import { ThemeSwitch } from "./theme-switch";
 import { UserMenu } from "./user-menu";
 import { MobileNav } from "./mobile-nav";
@@ -16,6 +17,7 @@ export function TopBar() {
   const site = bootstrap?.site ?? null;
   const me = bootstrap?.me ?? null;
   const navItems = bootstrap?.nav.site.flatMap((group) => group.items) ?? [];
+  const unread = bootstrap?.counts.unread ?? 0;
   const name = site?.name ?? "KyokkouPT";
 
   const topNav = navItems.filter((item) => item.href !== "/").slice(0, 3);
@@ -46,6 +48,16 @@ export function TopBar() {
       )}
 
       <div className="ml-auto flex shrink-0 items-center gap-0.5">
+        {unread > 0 && (
+          <Link
+            href="/notifications"
+            aria-label={`通知（${String(unread)} 条未读）`}
+            className="relative grid size-10 place-items-center rounded-sm text-fg-1 transition-colors hover:bg-surface-2 hover:text-fg-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent md:size-[34px]"
+          >
+            <Bell className="size-[18px]" />
+            <span className="absolute top-[7px] right-2 size-1.5 rounded-pill bg-danger ring-2 ring-surface-0" />
+          </Link>
+        )}
         <ThemeSwitch />
         <UserMenu />
       </div>

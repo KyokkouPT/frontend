@@ -148,7 +148,7 @@ export default async function HomePage() {
                 ) : (
                   <div className="grid gap-2">
                     {home.data.latest.map((torrent) => (
-                      <TorrentRow key={torrent.id} torrent={torrent} />
+                      <TorrentRow key={torrent.id} torrent={torrent} canDownload={Boolean(me)} />
                     ))}
                   </div>
                 )}

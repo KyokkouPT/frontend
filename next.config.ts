@@ -22,7 +22,8 @@ const nextConfig: NextConfig = {
       { source: "/scrape/:passkey", destination: `${apiOrigin}/scrape/:passkey` },
       { source: "/rss", destination: `${apiOrigin}/rss` },
       { source: "/rss.xml", destination: `${apiOrigin}/rss.xml` },
-      { source: "/t/:path*", destination: `${apiOrigin}/t/:path*` },
+      // 只代理下载端点；/t/[id] 是页面路由，不能被 rewrite 掉。
+      { source: "/t/:id/download", destination: `${apiOrigin}/t/:id/download` },
     ];
   },
 };
