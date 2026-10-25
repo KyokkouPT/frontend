@@ -19,6 +19,8 @@ export function LoginForm({
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [totpCode, setTotpCode] = useState("");
+  const [recoveryCode, setRecoveryCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -28,7 +30,12 @@ export function LoginForm({
     setError(null);
 
     try {
-      await apiPost<LoginResponse>("/api/v1/auth/login", { username, password });
+      await apiPost<LoginResponse>("/api/v1/auth/login", {
+        username,
+        password,
+        ...(totpCode.trim() ? { totp_code: totpCode.trim() } : {}),
+        ...(recoveryCode.trim() ? { recovery_code: recoveryCode.trim() } : {}),
+      });
       router.replace(next);
       router.refresh();
     } catch (loginError) {
@@ -72,6 +79,30 @@ export function LoginForm({
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="••••••••"
+          />
+        </Field>
+
+        <Field label="两步验证码" htmlFor="totp_code" hint="未启用 2FA 可留空">
+          <Input
+            id="totp_code"
+            name="totp_code"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            value={totpCode}
+            onChange={(event) => setTotpCode(event.target.value.replace(/\D/g, ""))}
+            placeholder="6 位数字"
+          />
+        </Field>
+
+        <Field label="恢复码" htmlFor="recovery_code" hint="忘记动态码时使用，一次性">
+          <Input
+            id="recovery_code"
+            name="recovery_code"
+            autoComplete="off"
+            value={recoveryCode}
+            onChange={(event) => setRecoveryCode(event.target.value.toUpperCase())}
+            placeholder="XXXXXXXXXX"
           />
         </Field>
 
