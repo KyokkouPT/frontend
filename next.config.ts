@@ -20,7 +20,8 @@ const nextConfig: NextConfig = {
       { source: "/announce/:passkey", destination: `${apiOrigin}/announce/:passkey` },
       { source: "/scrape", destination: `${apiOrigin}/scrape` },
       { source: "/scrape/:passkey", destination: `${apiOrigin}/scrape/:passkey` },
-      // /rss 是后端 RSS 端点；前端说明页在 /me/rss，避免页面路由被代理。
+      // /rss 与 /rss.xml 都是后端 RSS 端点；前端说明页在 /me/rss，二者不冲突。
+      { source: "/rss", destination: `${apiOrigin}/rss` },
       { source: "/rss.xml", destination: `${apiOrigin}/rss.xml` },
       // 只代理下载端点；/t/[id] 是页面路由，不能被 rewrite 掉。
       { source: "/t/:id/download", destination: `${apiOrigin}/t/:id/download` },
