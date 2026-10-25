@@ -23,7 +23,8 @@ UI 来自仓库外层的 `web/` v0 原型，**不复制 fixture 进本仓库**�
 | --- | --- | --- |
 | `/` | 首页：问候、统计、最新发布、公告、分区、促销、我的待办 | `/api/v1/home` + bootstrap |
 | `/rules` | 注册、审核、Tracker、H&R、分区规范 | `/api/v1/rules` |
-| `/login` | 登录（真实表单 + CSRF） | `/api/v1/auth/csrf`、`/api/v1/auth/login` |
+| `/login` | 登录（真实表单 + CSRF + 2FA 可选字段） | `/api/v1/auth/csrf`、`/api/v1/auth/login` |
+| `/setup` | 首次安装向导：站点名、管理员、基础分区、开放注册 | `/api/v1/setup` |
 | `/me` | 我的概览（登录守卫；未登录跳 `/login?next=/me`） | `/api/v1/me` |
 | `/browse` | 浏览：分区/分类/促销/字段/搜索/排序/加载更多 | `/api/v1/torrents` |
 | `/t/[id]` | 种子详情：规格、文件树、描述、相关版本、下载 | `/api/v1/torrents/:id` |
