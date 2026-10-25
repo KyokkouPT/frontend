@@ -1,0 +1,253 @@
+@import "tailwindcss";
+
+/* ============================================================
+   KyokkouPT · 设计系统 → Tailwind v4
+   设计稿：design/assets/tokens.css（静态 HTML 版，逐像素对照）
+   文档：docs/08-ui.md
+
+   策略：颜色/字号/圆角全部注册进 @theme，主题切换只覆盖 CSS 变量，
+       组件里**不用** dark: 变体，也不写死色值。
+   ============================================================ */
+
+@theme {
+  /* ---- 字体 ---- */
+  --font-sans: "Inter", "Noto Sans SC", system-ui, -apple-system, "Segoe UI",
+    "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono",
+    Consolas, monospace;
+
+  /* ---- 字号：覆盖默认 scale，贴合设计稿的 11/12/13/14 ---- */
+  --text-2xs: 11px;
+  --text-2xs--line-height: 15px;
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+  --text-sm: 13px;
+  --text-sm--line-height: 18px;
+  --text-base: 14px;
+  --text-base--line-height: 22px;
+  --text-lg: 15px;
+  --text-lg--line-height: 20px;
+  --text-xl: 22px;
+  --text-xl--line-height: 30px;
+  --text-2xl: 24px;
+  --text-2xl--line-height: 32px;
+
+  /* ---- 圆角：设计稿是 6 / 10 / 14 / pill ---- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+
+  /* ---- 默认主题：极昼 polar（亮色） ---- */
+  --color-surface-0: #f6f8fa;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #eef2f6;
+  --color-surface-3: #e1e8ef;
+
+  --color-line: #e2e8f0;
+  --color-line-strong: #c8d3df;
+
+  --color-fg-0: #0e1922;
+  --color-fg-1: #4a5967;
+  --color-fg-2: #5f6b77;
+
+  /* 深青：白底 5.0:1。亮青 #46E0C0 在白底只有 1.9:1，不能直接用 */
+  --color-accent: #0b7d68;
+  --color-accent-ink: #ffffff;
+  --color-accent-2: #6d5bd0;
+
+  --color-ok: #1a7f37;
+  --color-warn: #9a6700;
+  --color-danger: #cf222e;
+  --color-free: #6d28d9;
+  --color-promo2x: #0b7d68;
+
+  --color-ring-track: #e1e8ef;
+
+  --shadow-card: 0 1px 2px rgb(14 25 34 / 0.06);
+  --shadow-pop: 0 8px 24px rgb(14 25 34 / 0.1);
+
+  /* 页面装饰光晕（非 utility，仅作变量） */
+  --glow-a: rgb(11 125 104 / 0.07);
+  --glow-b: rgb(109 91 208 / 0.05);
+}
+
+/* 默认浅色。原生控件（select / checkbox / range）靠它；
+   同时保证 JS 未执行、<html> 上没有 data-theme 时也回落到浅色。 */
+:root {
+  color-scheme: light;
+}
+
+/* ============ 深色主题：极光 aurora（同一冷色相） ============
+   不放进 layer：未分层样式的优先级高于 @theme 的 :root 声明，
+   所以 [data-theme="aurora"] 能盖掉 @theme 里的浅色取值。 */
+[data-theme="aurora"] {
+  color-scheme: dark;
+
+  --color-surface-0: #0b0f14;
+  --color-surface-1: #121821;
+  --color-surface-2: #1a2230;
+  --color-surface-3: #222c3c;
+
+  --color-line: #24303f;
+  --color-line-strong: #33435a;
+
+  --color-fg-0: #e6edf3;
+  --color-fg-1: #8b98a9;
+  --color-fg-2: #7b8899;
+
+  --color-accent: #46e0c0;
+  --color-accent-ink: #04231d;
+  --color-accent-2: #8b7bff;
+
+  --color-ok: #3fb950;
+  --color-warn: #d29922;
+  --color-danger: #f85149;
+  --color-free: #a371f7;
+  --color-promo2x: #46e0c0;
+
+  --color-ring-track: #1e2a38;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-pop: 0 8px 24px rgb(0 0 0 / 0.45);
+
+  --glow-a: rgb(70 224 192 / 0.07);
+  --glow-b: rgb(139 123 255 / 0.06);
+}
+
+/* ============================ 基础层 ============================ */
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* 始终为纵向滚动条预留占位。抽屉 / 弹层把滚动锁掉时（overflow: hidden），
+       若不预留，滚动条一消失视口就多出 10px，整页会横向跳一下。
+       stable 让滚动条有没有出现都占同样宽度。 */
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--color-surface-0);
+    color: var(--color-fg-0);
+    /* 极光装饰：两团极淡的光，不干扰阅读 */
+    background-image:
+      radial-gradient(720px 420px at 6% -8%, var(--glow-a), transparent 70%),
+      radial-gradient(680px 380px at 92% -12%, var(--glow-b), transparent 72%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
+  /* lucide 图标默认描边 2，设计稿是 1.75 */
+  .lucide {
+    stroke-width: 1.75;
+  }
+
+  /* 指针：浏览器给 <a> 是 cursor:pointer、给 <button> 是 cursor:default，
+     Tailwind 不重置这一项 —— 于是同一个顶栏里链接是手型、按钮是箭头，
+     用户会以为按钮点不了。全站统一成手型；禁用态明确为 not-allowed。
+     这是一次性的设计决定，一条规则管全部按钮，不要在组件里零散加 cursor-pointer。 */
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  summary {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-accent) 22%, transparent);
+    color: var(--color-fg-0);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background-clip: content-box;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: 16px;
+    top: -48px;
+    z-index: 300;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    font-weight: 600;
+    transition: top 120ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  .skip-link:focus-visible {
+    top: 12px;
+  }
+
+  /* 主题切换的动效全部做在 ThemeSwitch 的图标里（日月形变），
+     不要再给全局加 transition:none —— 那会把图标自己的过渡一起杀掉。 */
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+/* ============================ 移动端抽屉动画 ============================
+   入场用 @starting-style：元素第一次插入 DOM 时从「屏幕外/透明」过渡到目标态，
+   全程不依赖 requestAnimationFrame —— 后台标签页里 rAF 会被降频甚至不触发，
+   那样抽屉会卡在关闭位置打不开（踩过一次）。 */
+.kp-drawer-panel {
+  transform: translateX(-100%);
+  transition: transform 300ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.kp-drawer-panel[data-shown="true"] {
+  transform: translateX(0);
+}
+
+.kp-drawer-mask {
+  opacity: 1;
+  transition: opacity 300ms ease-out;
+}
+
+.kp-drawer-mask[data-shown="false"] {
+  opacity: 0;
+}
+
+/* 注意选择器特异性：@starting-style 里的声明与普通声明一起参与层叠，
+   所以这里必须写成和展开态**同等特异性**的选择器（[data-shown="true"]），
+   靠源码顺序在后取胜；写成 .kp-drawer-panel 会被 .kp-drawer-panel[data-shown="true"] 盖掉，
+   结果就是面板直接跳到终点、只有遮罩在淡入。 */
+@starting-style {
+  .kp-drawer-panel[data-shown="true"] {
+    transform: translateX(-100%);
+  }
+
+  .kp-drawer-mask[data-shown="true"] {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kp-drawer-panel,
+  .kp-drawer-mask {
+    transition: none;
+  }
+}
