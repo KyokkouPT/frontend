@@ -59,13 +59,18 @@ UI 来自仓库外层的 `web/` v0 原型，**不复制 fixture 进本仓库**�
 - 上传：`apiUpload` 发送 `FormData`（浏览器生成 multipart boundary），字段来自分区配置；成功后跳 `/me?uploaded=…` 显示提示。
 - 本地 rewrite 只代理 `/t/:id/download`，不能把 `/t/[id]` 页面路由代理到后端。
 - 兑换：`apiPost` 带 `Idempotency-Key`，成功后 `router.refresh()` 重新拉余额与账本；冻结/余额不足展示 problem+json 文案。
-- RSS 说明页在 `/me/rss`；后端 RSS 端点是 `/rss`、`/rss.xml`。**本地 next rewrite 会破坏 announce 的二进制 query**，Tracker 验收请直连后端 31001。
+- RSS 说明页在 `/me/rss`；后端 RSS 端点是 `/rss`、`/rss.xml`。
+- `announce`/`scrape` 由 `server.mjs` 在 Next 之前用原始 `req.url` 转发（保留 percent-encoding），本地也可经 `31002` 测 Tracker；生产只需要一条 Nginx `location /` → `31002`。
 
 ## 启动
 
 ```bash
 pnpm install
-pnpm dev            # http://localhost:31002
+pnpm dev            # node --watch server.mjs，http://127.0.0.1:31002
+
+# 生产
+pnpm build
+$env:NODE_ENV="production"; pnpm start
 ```
 
 后端在另一个仓库：`cd ../backend && pnpm install && pnpm migrate && pnpm seed && pnpm dev`。
@@ -74,9 +79,9 @@ pnpm dev            # http://localhost:31002
 
 | 命令 | 说明 |
 | --- | --- |
-| `pnpm dev` | Next dev（31002） |
+| `pnpm dev` | 自定义 server（`server.mjs`）+ Next dev（31002） |
 | `pnpm build` | 生产构建（Turbopack） |
-| `pnpm start` | 运行构建产物（31002） |
+| `pnpm start` | 运行 `server.mjs`（需 `NODE_ENV=production`，31002） |
 | `pnpm typecheck` | `tsc --noEmit` |
 
 ## 环境变量

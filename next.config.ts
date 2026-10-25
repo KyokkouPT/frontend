@@ -16,10 +16,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       { source: "/api/:path*", destination: `${apiOrigin}/api/:path*` },
-      { source: "/announce", destination: `${apiOrigin}/announce` },
-      { source: "/announce/:passkey", destination: `${apiOrigin}/announce/:passkey` },
-      { source: "/scrape", destination: `${apiOrigin}/scrape` },
-      { source: "/scrape/:passkey", destination: `${apiOrigin}/scrape/:passkey` },
+      // announce/scrape 由 app/announce|[scrape]/[[...passkey]]/route.ts 手动反代：
+      // rewrites 会重新编码 info_hash/peer_id 的二进制 query，不能用于 Tracker。
       // /rss 与 /rss.xml 都是后端 RSS 端点；前端说明页在 /me/rss，二者不冲突。
       { source: "/rss", destination: `${apiOrigin}/rss` },
       { source: "/rss.xml", destination: `${apiOrigin}/rss.xml` },
