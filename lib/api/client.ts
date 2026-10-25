@@ -64,6 +64,14 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   const headers = new Headers(init.headers);
   headers.set("accept", "application/json");
 
+  const method = (init.method ?? "GET").toUpperCase();
+  if (method !== "GET" && method !== "HEAD" && method !== "OPTIONS") {
+    headers.set("x-csrf-token", await ensureCsrf());
+    if (init.body !== undefined && !headers.has("content-type")) {
+      headers.set("content-type", "application/json");
+    }
+  }
+
   const response = await fetch(path, {
     ...init,
     headers,

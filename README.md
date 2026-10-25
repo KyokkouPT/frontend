@@ -7,7 +7,7 @@
 - 本地开发：Next rewrites 把 `/api`、Tracker、RSS、下载转发到后端 `31001`
 - 生产：前端 Nginx 直接反代这些路径，并注入 `X-Kyou-Secret`（后端 Nginx 校验）
 
-> 当前进度：Phase 5 纵切（2FA + 账号设置 + Staff）。登录（含 2FA 动态码/恢复码）、首页、规则、我的概览、浏览、详情、上传、审核台、通知、做种/下载/魔力值/RSS、注册、邀请、求种、排行、用户主页、账号设置、申诉、Staff 概览/举报/用户/反作弊/审计/申诉已接真实 API；站点设置/分区编辑与部署验证按下一轮接入。
+> 当前进度：Phase 5 纵切（2FA + 账号设置 + Staff + 站点设置/分区）。登录（含 2FA）、首页、规则、我的概览、浏览、详情、上传、审核台、通知、做种/下载/魔力值/RSS、注册、邀请、求种、排行、用户主页、账号设置、申诉、Staff 概览/举报/用户/反作弊/审计/申诉、站点设置/分区已接真实 API；SMTP 实际发送与部署验证待下一轮。
 
 ## 设计来源（只读）
 
@@ -44,6 +44,7 @@ UI 来自仓库外层的 `web/` v0 原型，**不复制 fixture 进本仓库**�
 | `/appeal` | 免登录封禁申诉 | `/api/v1/appeals/public` |
 | `/staff` | 站务概览 | `/api/v1/staff/summary` |
 | `/staff/reports`、`/staff/users`、`/staff/anomalies`、`/staff/audit`、`/staff/appeals` | 举报、用户管理、反作弊、审计（CSV）、申诉 | `/api/v1/staff/*` |
+| `/staff/settings`、`/staff/sections` | 站点设置；分区/分类编辑（仅 admin） | `/api/v1/staff/settings`、`/staff/sections` |
 
 空状态、错误状态、加载状态均已实现：API 失败时显示 problem+json 文案与排查提示，不静默回退到假数据。
 
@@ -131,4 +132,4 @@ pnpm 11 只从 `pnpm-workspace.yaml` 读取 build scripts 严格度设置。本�
 
 ## 待移植页面（按纵切）
 
-站点设置/分区字段编辑、SMTP 实际发送、Docker/Nginx 部署验证。规范见仓库外 `docs/19-frontend-spec.md`。
+SMTP 实际发送、Docker/Nginx 部署验证与 MySQL/PG 实跑。规范见仓库外 `docs/19-frontend-spec.md`。
