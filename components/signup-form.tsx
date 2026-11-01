@@ -25,20 +25,31 @@ export function SignupForm({
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
-  if (registration && !registration.open && !registration.invite_registration_enabled) {
-    return (
-      <>
-        <h1 className="text-2xl font-semibold tracking-[-0.02em]">注册</h1>
-        <p className="mt-1.5 text-sm text-fg-1">{registration.closed_message}</p>
-        <p className="mt-4 text-sm text-fg-2">
-          已有账号？{" "}
-          <Link href="/login" className="font-medium text-accent hover:underline">
-            去登录
-          </Link>
-        </p>
-      </>
-    );
+  if (registration) {
+    const closedMode = registration.closed_registration_mode ?? "auto";
+    const showForm =
+      registration.open ||
+      closedMode === "form" ||
+      (closedMode === "auto" && registration.invite_registration_enabled);
+    if (!showForm) {
+      return (
+        <>
+          <h1 className="text-2xl font-semibold tracking-[-0.02em]">注册</h1>
+          <p className="mt-1.5 text-sm text-fg-1">{registration.closed_message}</p>
+          <p className="mt-4 text-sm text-fg-2">
+            已有账号？{" "}
+            <Link href="/login" className="font-medium text-accent hover:underline">
+              去登录
+            </Link>
+          </p>
+        </>
+      );
+    }
   }
+
+  const submissionBlocked = Boolean(
+    registration && !registration.open && !registration.invite_registration_enabled,
+  );
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -76,8 +87,16 @@ export function SignupForm({
       <p className="mt-1.5 text-sm text-fg-1">
         {registration?.open
           ? "当前开放注册；填写邀请码可以绑定邀请人。"
-          : "当前为邀请注册，请填写有效的邀请码。"}
+          : registration?.invite_registration_enabled
+            ? "当前为邀请注册，请填写有效的邀请码。"
+            : "站点当前关闭注册，仅展示注册表单。"}
       </p>
+
+      {submissionBlocked && (
+        <Notice tone="warn" className="mt-4">
+          站点当前关闭注册且未开放邀请注册，提交将被拒绝。请等待开放或联系管理员获取邀请码。
+        </Notice>
+      )}
 
       <form onSubmit={onSubmit} className="mt-6 grid gap-4" noValidate>
         <Field label="用户名" htmlFor="signup-username" required hint="3–32 位，小写字母/数字/下划线/连字符">
@@ -142,7 +161,7 @@ export function SignupForm({
 
         {error && <Notice tone="warn">{error}</Notice>}
 
-        <Button variant="primary" size="lg" type="submit" className="w-full" disabled={pending || !rulesAccepted}>
+        <Button variant="primary" size="lg" type="submit" className="w-full" disabled={pending || !rulesAccepted || submissionBlocked}>
           {pending ? "注册中…" : "注册并登录"}
         </Button>
 

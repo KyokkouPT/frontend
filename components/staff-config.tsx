@@ -103,6 +103,25 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
               onChange={(event) => patch("registration", { closed_message: event.target.value })}
             />
           </Field>
+          <Field
+            label="关闭注册时点击注册"
+            htmlFor="registration-closed-mode"
+            hint="auto：允许邀请注册时显示表单，否则显示提示；form：始终显示表单；message：始终只显示提示"
+          >
+            <Select
+              id="registration-closed-mode"
+              value={settings.registration.closed_registration_mode}
+              onChange={(event) =>
+                patch("registration", {
+                  closed_registration_mode: event.target.value as "auto" | "form" | "message",
+                })
+              }
+            >
+              <option value="auto">自动（按邀请注册设置）</option>
+              <option value="form">显示注册表单</option>
+              <option value="message">只显示关闭提示</option>
+            </Select>
+          </Field>
         </div>
       </Panel>
 
