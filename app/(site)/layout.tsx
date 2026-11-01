@@ -11,6 +11,9 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
   if (setup.requires_setup) redirect("/setup");
 
   const bootstrap = await getBootstrap();
+  if (bootstrap && !bootstrap.me && bootstrap.site.allow_guest_access === false) {
+    redirect("/login");
+  }
 
   return (
     <BootstrapProvider bootstrap={bootstrap}>

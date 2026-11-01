@@ -71,6 +71,17 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
               onChange={(event) => patch("site", { locale: event.target.value })}
             />
           </Field>
+          <label className="flex items-center gap-2 text-sm sm:col-span-2">
+            <input
+              type="checkbox"
+              checked={settings.site.allow_guest_access}
+              onChange={(event) =>
+                patch("site", { allow_guest_access: event.target.checked })
+              }
+              className="size-[15px] accent-accent"
+            />
+            允许未登录用户访问站点页面
+          </label>
         </div>
       </Panel>
 
