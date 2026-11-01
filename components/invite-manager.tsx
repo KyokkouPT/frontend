@@ -137,7 +137,7 @@ export function InviteManager({
               key={item.code}
               className="flex flex-wrap items-center gap-2 rounded-md border border-line bg-surface-1 p-3"
             >
-              <code className="font-mono text-sm">{item.code}</code>
+              <code className="break-all font-mono text-sm">{item.code}</code>
               <Badge tone={item.status === "unused" ? "ok" : "default"}>
                 {item.status === "unused" ? "未使用" : "已使用"}
               </Badge>
