@@ -45,7 +45,7 @@ export default async function UserPage({ params }: { params: Promise<{ name: str
 
       <PageHeader
         title={profile.name}
-        description={`${ROLE_LABEL[profile.role]} · ${profile.class_key} · 加入于 ${formatDate(profile.joined_at)}`}
+        description={`${profile.class.name} · rank ${String(profile.class.rank)} · 加入于 ${formatDate(profile.joined_at)}`}
       />
 
       <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4">

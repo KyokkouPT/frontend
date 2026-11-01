@@ -76,7 +76,7 @@ export default async function MePage({
             <div className="min-w-0">
               <b className="block truncate text-base font-semibold">{user.username}</b>
               <p className="mt-0.5 text-xs text-fg-2">
-                {ROLE_LABEL[user.role]} · {user.class_key}
+                {user.class.name} · rank {user.class.rank}
               </p>
               <Badge tone={user.status === "active" ? "ok" : "danger"} className="mt-2">
                 {user.status === "active" ? "正常" : user.status}

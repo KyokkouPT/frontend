@@ -140,7 +140,7 @@ export function UserMenu() {
         <span className="grid leading-tight max-md:hidden">
           <b className="max-w-[120px] truncate text-xs font-semibold">{me.username}</b>
           <span className="text-[10px] tracking-[0.04em] text-accent">
-            {ROLE_LABEL[me.role]} · {me.class_key}
+            {me.class.name} · rank {me.class.rank}
           </span>
         </span>
         <ChevronDown
@@ -165,7 +165,7 @@ export function UserMenu() {
             <div className="min-w-0">
               <b className="block truncate text-[13px] font-semibold">{me.username}</b>
               <span className="block text-2xs text-fg-2">
-                {ROLE_LABEL[me.role]} · {me.class_key}
+                {me.class.name} · rank {me.class.rank}
               </span>
             </div>
           </div>

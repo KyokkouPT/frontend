@@ -5,6 +5,7 @@ import { ServerFetchError, serverFetch } from "@/lib/api/server";
 import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
 import { SettingsEditor } from "@/components/staff-config";
+import { ClassSchedulerPanel } from "@/components/class-scheduler-panel";
 import { Panel } from "@/components/ui/panel";
 
 export const dynamic = "force-dynamic";
@@ -46,6 +47,9 @@ export default async function StaffSettingsPage() {
         description="保存后立即影响 bootstrap、注册、Tracker 与经济；写入审计日志（settings.update）。"
       />
       <SettingsEditor initial={data.settings} />
+      <div className="mt-6">
+        <ClassSchedulerPanel initial={data.settings.classes} />
+      </div>
     </>
   );
 }

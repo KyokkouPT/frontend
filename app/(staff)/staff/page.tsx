@@ -59,6 +59,8 @@ export default async function StaffPage() {
             ["审核台", "/staff/review"],
             ["举报", "/staff/reports"],
             ["用户管理", "/staff/users"],
+            ["等级管理", "/staff/classes"],
+            ["等级规则", "/staff/classes/rules"],
             ["反作弊", "/staff/anomalies"],
             ["审计日志", "/staff/audit"],
             ["申诉", "/staff/appeals"],

@@ -59,7 +59,7 @@ export function AccountPanel({ settings }: { settings: MeSettingsResponse }) {
             <dt className="w-24 text-fg-2">用户名</dt>
             <dd className="font-medium">{settings.username}</dd>
             <Badge tone="default">{settings.role}</Badge>
-            <Badge tone="accent">{settings.class_key}</Badge>
+            <Badge tone="accent">{settings.class.name}</Badge>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <dt className="w-24 text-fg-2">passkey</dt>

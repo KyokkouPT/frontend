@@ -100,7 +100,7 @@ export default async function StaffUsersPage({
               <thead>
                 <tr className="border-b border-line text-xs text-fg-2">
                   <th className="px-4 py-2.5 font-medium">用户名</th>
-                  <th className="px-3 py-2.5 font-medium">权限组</th>
+                  <th className="px-3 py-2.5 font-medium">等级</th>
                   <th className="px-3 py-2.5 font-medium">状态</th>
                   <th className="px-3 py-2.5 font-medium">分享率</th>
                   <th className="px-4 py-2.5 font-medium">工具箱</th>
@@ -114,8 +114,11 @@ export default async function StaffUsersPage({
                       <span className="block text-2xs text-fg-2">{user.email}</span>
                     </td>
                     <td className="px-3 py-3">
-                      <span className="text-sm">{ROLE_LABEL[user.role] ?? user.role}</span>
-                      <span className="ml-1 font-mono text-2xs text-fg-2">{user.class_key}</span>
+                      <span className="text-sm font-medium">{user.class.name}</span>
+                      <span className="ml-1 font-mono text-2xs text-fg-2">rank {user.class.rank}</span>
+                      {user.warnings > 0 && (
+                        <span className="ml-1 text-2xs text-warn">警告 {user.warnings}</span>
+                      )}
                     </td>
                     <td className="px-3 py-3">
                       <Badge tone={user.status === "active" ? "ok" : user.status === "suspended" ? "warn" : "danger"}>

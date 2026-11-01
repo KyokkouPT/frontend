@@ -9,18 +9,27 @@ import { Button } from "./ui/button";
 import { Field, Input, Select } from "./ui/field";
 import { Notice } from "./notice";
 
+type ClassOption = { slug: string; name: string; rank: number };
+
 function errorText(error: unknown, fallback: string): string {
   return error instanceof ApiClientError ? (error.fields?.[0]?.message ?? error.message) : fallback;
 }
 
 /** 新建与编辑共用同一个用户表单布局。 */
-export function UserForm({ mode, user }: { mode: "create" | "edit"; user?: StaffUserItem }) {
+export function UserForm({
+  mode,
+  user,
+  classes,
+}: {
+  mode: "create" | "edit";
+  user?: StaffUserItem;
+  classes: ClassOption[];
+}) {
   const router = useRouter();
   const [username, setUsername] = useState(user?.username ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState(user?.role ?? "user");
-  const [classKey, setClassKey] = useState(user?.class_key ?? "user");
+  const [classSlug, setClassSlug] = useState(user?.class.slug ?? classes.find((item) => item.slug === "user")?.slug ?? "user");
   const [status, setStatus] = useState(user?.status ?? "active");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,16 +44,14 @@ export function UserForm({ mode, user }: { mode: "create" | "edit"; user?: Staff
           username: username.trim(),
           email: email.trim(),
           password,
-          role,
-          class_key: classKey.trim(),
+          class_slug: classSlug,
         });
       } else if (user) {
         await apiFetch(`/api/v1/staff/users/${String(user.id)}`, {
           method: "PUT",
           body: JSON.stringify({
             email: email.trim(),
-            role,
-            class_key: classKey.trim(),
+            class_slug: classSlug,
             status,
             ...(password ? { password } : {}),
           }),
@@ -100,20 +107,14 @@ export function UserForm({ mode, user }: { mode: "create" | "edit"; user?: Staff
           />
         </Field>
 
-        <Field label="角色" htmlFor="user-role">
-          <Select id="user-role" value={role} onChange={(event) => setRole(event.target.value as typeof role)}>
-            <option value="user">用户</option>
-            <option value="moderator">版主</option>
-            <option value="admin">管理员</option>
+        <Field label="等级" htmlFor="user-class" hint="只能授予 rank 低于自己的等级">
+          <Select id="user-class" value={classSlug} onChange={(event) => setClassSlug(event.target.value)}>
+            {classes.map((item) => (
+              <option key={item.slug} value={item.slug}>
+                {item.name}（{item.slug}，rank {item.rank}）
+              </option>
+            ))}
           </Select>
-        </Field>
-
-        <Field label="权限组（class_key）" htmlFor="user-class" hint="显示用等级标识">
-          <Input
-            id="user-class"
-            value={classKey}
-            onChange={(event) => setClassKey(event.target.value)}
-          />
         </Field>
 
         {mode === "edit" && (

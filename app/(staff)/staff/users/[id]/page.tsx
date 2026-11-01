@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import type { StaffUsersResponse } from "@kyokkou/contracts";
+import type { ClassesResponse, StaffUsersResponse } from "@kyokkou/contracts";
 import { getBootstrap } from "@/lib/bootstrap";
 import { ServerFetchError, serverFetch } from "@/lib/api/server";
 import { Notice } from "@/components/notice";
@@ -30,8 +30,12 @@ export default async function EditUserPage({
   const numericId = Number(id);
 
   let data: StaffUsersResponse;
+  let classes: ClassesResponse["items"] = [];
   try {
-    data = await serverFetch<StaffUsersResponse>("/api/v1/staff/users");
+    [data, { items: classes }] = await Promise.all([
+      serverFetch<StaffUsersResponse>("/api/v1/staff/users"),
+      serverFetch<ClassesResponse>("/api/v1/classes"),
+    ]);
   } catch (error) {
     const message =
       error instanceof ServerFetchError
@@ -52,7 +56,7 @@ export default async function EditUserPage({
   return (
     <>
       <PageHeader title={`编辑用户 · ${user.username}`} description={user.email} />
-      <UserForm mode="edit" user={user} />
+      <UserForm mode="edit" user={user} classes={classes} />
     </>
   );
 }

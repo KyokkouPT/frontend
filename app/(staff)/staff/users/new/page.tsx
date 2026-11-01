@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
+import type { ClassesResponse } from "@kyokkou/contracts";
 import { getBootstrap } from "@/lib/bootstrap";
+import { serverFetch } from "@/lib/api/server";
 import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
 import { UserForm } from "@/components/user-form";
@@ -20,10 +22,17 @@ export default async function NewUserPage() {
     );
   }
 
+  let classes: ClassesResponse["items"] = [];
+  try {
+    classes = (await serverFetch<ClassesResponse>("/api/v1/classes")).items;
+  } catch {
+    classes = [];
+  }
+
   return (
     <>
       <PageHeader title="新建用户" description="创建后可直接用该用户名与密码登录。" />
-      <UserForm mode="create" />
+      <UserForm mode="create" classes={classes} />
     </>
   );
 }
