@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type {
   ClassCondition,
   StaffMessageBody,
+  StaffMessageJob,
   StaffMessageOptions,
   StaffMessagePreviewResponse,
   StaffMessageSendResponse,
 } from "@kyokkou/contracts";
-import { ApiClientError, apiPost } from "@/lib/api/client";
+import { ApiClientError, apiFetch, apiPost } from "@/lib/api/client";
 import { Button } from "./ui/button";
 import { Field, Input, Select, Textarea } from "./ui/field";
 import { Notice } from "./notice";
@@ -59,8 +60,56 @@ export function StaffMessageComposer({ classes }: { classes: StaffMessageOptions
   const [userIdsText, setUserIdsText] = useState("");
   const [pending, setPending] = useState(false);
   const [preview, setPreview] = useState<StaffMessagePreviewResponse | null>(null);
+  const [jobToken, setJobToken] = useState<string | null>(null);
+  const [jobStatus, setJobStatus] = useState<StaffMessageJob["status"] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("kp:mass-message-job");
+    if (saved) {
+      setJobToken(saved);
+      setJobStatus("queued");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!jobToken || jobStatus === "completed" || jobStatus === "failed") return;
+    let cancelled = false;
+
+    async function poll(): Promise<void> {
+      try {
+        const job = await apiFetch<StaffMessageJob>(
+          `/api/v1/staff/messages/jobs/${encodeURIComponent(jobToken as string)}`,
+        );
+        if (cancelled) return;
+        setJobStatus(job.status);
+        if (job.status === "completed") {
+          setMessage(`已完成，已向 ${String(job.recipients)} 名用户发送站内信。`);
+          setPreview(null);
+          window.localStorage.removeItem("kp:mass-message-job");
+        } else if (job.status === "failed") {
+          setError(job.error ?? "发送失败，请稍后重试");
+          window.localStorage.removeItem("kp:mass-message-job");
+        }
+      } catch (caught) {
+        if (!cancelled) {
+          setError(caught instanceof ApiClientError ? caught.message : "查询发送状态失败");
+          setJobStatus("failed");
+          window.localStorage.removeItem("kp:mass-message-job");
+        }
+      }
+    }
+
+    void poll();
+    const timer = setInterval(() => void poll(), 1500);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [jobToken, jobStatus]);
+
+  const jobRunning = jobStatus === "queued" || jobStatus === "running";
 
   function addCondition(): void {
     const nextId = rows.reduce((max, row) => Math.max(max, row.id), 0) + 1;
@@ -122,7 +171,10 @@ export function StaffMessageComposer({ classes }: { classes: StaffMessageOptions
     setMessage(null);
     try {
       const result = await apiPost<StaffMessageSendResponse>("/api/v1/staff/messages", payload);
-      setMessage(`已向 ${String(result.recipients)} 名用户发送站内信。`);
+      setJobToken(result.job_token);
+      setJobStatus(result.status);
+      window.localStorage.setItem("kp:mass-message-job", result.job_token);
+      setMessage("发送中：后台任务正在处理…");
       setPreview(null);
     } catch (caught) {
       setError(caught instanceof ApiClientError ? caught.message : "发送失败，请稍后重试");
@@ -300,15 +352,15 @@ export function StaffMessageComposer({ classes }: { classes: StaffMessageOptions
           )}
 
           <div className="flex flex-wrap gap-2">
-            <Button variant="default" onClick={() => void runPreview()} disabled={pending}>
+            <Button variant="default" onClick={() => void runPreview()} disabled={pending || jobRunning}>
               {pending ? "处理中…" : "预览收件人"}
             </Button>
             <Button
               variant="primary"
               onClick={() => void send()}
-              disabled={pending || !title.trim() || !body.trim()}
+              disabled={pending || jobRunning || !title.trim() || !body.trim()}
             >
-              发送站内信
+              {jobRunning ? "发送中…" : "发送站内信"}
             </Button>
           </div>
         </div>
