@@ -83,7 +83,7 @@ export function UserForm({
         const payload: Record<string, unknown> = {};
         if (can("username") && username.trim() !== user.username) payload.username = username.trim();
         if (can("email")) payload.email = email.trim();
-        if (can("class")) payload.class_slug = classSlug;
+        if (can("class") && classSlug !== user.class.slug) payload.class_slug = classSlug;
         if (can("status")) payload.status = status;
         if (can("password") && password.length > 0) payload.password = password;
 
@@ -192,7 +192,7 @@ export function UserForm({
         )}
 
         {(mode === "create" || can("class")) && (
-          <Field label="等级" htmlFor="user-class" hint="只能授予 rank 低于自己的等级">
+          <Field label="等级" htmlFor="user-class" hint="只能授予 rank 不高于自己的等级">
             <Select id="user-class" value={classSlug} onChange={(event) => setClassSlug(event.target.value)}>
               {classes.map((item) => (
                 <option key={item.slug} value={item.slug}>
