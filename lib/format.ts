@@ -61,3 +61,10 @@ export function formatDate(timestamp: number): string {
     date.getDate(),
   ).padStart(2, "0")}`;
 }
+
+export function formatDateTime(timestamp: number): string {
+  const date = new Date(timestamp);
+  return `${formatDate(timestamp)} ${String(date.getHours()).padStart(2, "0")}:${String(
+    date.getMinutes(),
+  ).padStart(2, "0")}`;
+}

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { Timer } from "lucide-react";
-import type { MeResponse } from "@kyokkou/contracts";
+import type { BtClientsResponse, MeResponse } from "@kyokkou/contracts";
 import { getBootstrap } from "@/lib/bootstrap";
 import { ServerFetchError, serverFetch } from "@/lib/api/server";
 import { formatBonus, formatBytes, formatDate, formatDuration, formatNumber, formatRatio } from "@/lib/format";
@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/page-header";
 import { Notice } from "@/components/notice";
 import { RatioRing } from "@/components/ratio-ring";
 import { HnrClearButton } from "@/components/hnr-clear-button";
+import { BtClientsPanel } from "@/components/bt-clients-panel";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Panel } from "@/components/ui/panel";
@@ -53,6 +54,12 @@ export default async function MePage({
 
   const user = me.user;
   const ratioArc = user.ratio === null ? 1 : Math.min(user.ratio, 2) / 2;
+  let clients: BtClientsResponse;
+  try {
+    clients = await serverFetch<BtClientsResponse>(`/api/v1/users/${String(user.id)}/clients`);
+  } catch {
+    clients = { items: [], hidden: false };
+  }
 
   return (
     <>
@@ -103,6 +110,8 @@ export default async function MePage({
             <StatCard label="下载中" value={formatNumber(me.stats.leeching)} sub="个种子" />
             <StatCard label="魔力值" value={formatBonus(user.bonus)} sub="当前余额" tone="accent" />
           </div>
+
+          <BtClientsPanel data={clients} />
 
           <Panel
             title="H&R 义务"
