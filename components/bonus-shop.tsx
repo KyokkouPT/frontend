@@ -42,6 +42,28 @@ function amountLabel(item: ExchangeItem): string | null {
   return String(item.amount);
 }
 
+function newIdempotencyKey(prefix: string): string {
+  const cryptoApi = globalThis.crypto;
+  if (typeof cryptoApi?.randomUUID === "function") {
+    return `${prefix}-${cryptoApi.randomUUID()}`;
+  }
+
+  // crypto.randomUUID 只在安全上下文（HTTPS/localhost）可用；
+  // 局域网 HTTP 访问时退回 getRandomValues，再退回 Math.random。
+  const bytes = new Uint8Array(16);
+  if (typeof cryptoApi?.getRandomValues === "function") {
+    cryptoApi.getRandomValues(bytes);
+  } else {
+    for (let index = 0; index < bytes.length; index += 1) {
+      bytes[index] = Math.floor(Math.random() * 256);
+    }
+  }
+  bytes[6] = ((bytes[6] ?? 0) & 0x0f) | 0x40;
+  bytes[8] = ((bytes[8] ?? 0) & 0x3f) | 0x80;
+  const hex = [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  return `${prefix}-${hex}`;
+}
+
 export function BonusShop({
   items,
   frozen,
@@ -93,7 +115,7 @@ export function BonusShop({
         params.message = message.trim();
       }
       if (selected.type === "username_change") params.username = username.trim();
-      const idempotencyKey = `${selected.key}-${crypto.randomUUID()}`;
+      const idempotencyKey = newIdempotencyKey(selected.key);
       const result = await apiPost<{ message: string }>(
         `/api/v1/me/exchange/${encodeURIComponent(selected.key)}`,
         { params, idempotency_key: idempotencyKey },
@@ -103,7 +125,13 @@ export function BonusShop({
       setSelected(null);
       router.refresh();
     } catch (caught) {
-      setError(caught instanceof ApiClientError ? caught.message : "兑换失败，请稍后重试");
+      setError(
+        caught instanceof ApiClientError
+          ? caught.message
+          : caught instanceof Error
+            ? `兑换失败：${caught.message}`
+            : "兑换失败，请稍后重试",
+      );
     } finally {
       setPending(false);
     }
