@@ -44,16 +44,15 @@ export default async function StaffSectionsPage() {
       <PageHeader
         title="分区管理"
         description="分区决定发布时可选的分类；分类至少一个才能上传种子。"
+        actions={
+          <Link
+            href="/staff/sections/new"
+            className="inline-flex h-10 items-center rounded-sm border border-accent bg-accent px-4 text-sm font-semibold text-accent-ink transition hover:brightness-110"
+          >
+            新建分区
+          </Link>
+        }
       />
-
-      <div className="mb-4 flex justify-end">
-        <Link
-          href="/staff/sections/new"
-          className="inline-flex h-10 items-center rounded-sm border border-accent bg-accent px-4 text-sm font-semibold text-accent-ink transition hover:brightness-110"
-        >
-          新建分区
-        </Link>
-      </div>
 
       <Panel flush>
         {data.items.length === 0 ? (
