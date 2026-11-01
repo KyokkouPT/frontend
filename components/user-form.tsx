@@ -14,6 +14,14 @@ type ClassOption = { slug: string; name: string; rank: number };
 
 const GB = 1024 ** 3;
 
+function roundBonus(value: number): number {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function bonusText(value: number): string {
+  return roundBonus(value).toFixed(2);
+}
+
 const EDIT_FIELDS = {
   password: "staff.user_edit.password",
   username: "staff.user_edit.username",
@@ -58,7 +66,7 @@ export function UserForm({
   const [status, setStatus] = useState(user?.status ?? "active");
   const [uploadedGb, setUploadedGb] = useState(user ? toGbText(user.uploaded) : "0");
   const [downloadedGb, setDownloadedGb] = useState(user ? toGbText(user.downloaded) : "0");
-  const [bonus, setBonus] = useState(user ? String(user.bonus) : "0");
+  const [bonus, setBonus] = useState(user ? bonusText(user.bonus) : "0.00");
   const [inviteBalance, setInviteBalance] = useState(user ? String(user.invite_balance) : "0");
   const [warnings, setWarnings] = useState(user ? String(user.warnings) : "0");
   const [customTitle, setCustomTitle] = useState(user?.custom_title ?? "");
@@ -89,7 +97,7 @@ export function UserForm({
 
         const nextUploaded = Math.floor(Number(uploadedGb) * GB);
         const nextDownloaded = Math.floor(Number(downloadedGb) * GB);
-        const nextBonus = Number(bonus);
+        const nextBonus = roundBonus(Number(bonus));
         const nextInvite = Number(inviteBalance);
         const nextWarnings = Number(warnings);
         if (can("uploaded") && Number.isFinite(nextUploaded) && toGbText(nextUploaded) !== toGbText(user.uploaded)) {
@@ -102,7 +110,7 @@ export function UserForm({
         ) {
           payload.downloaded = nextDownloaded;
         }
-        if (can("bonus") && Number.isFinite(nextBonus) && nextBonus !== user.bonus) {
+        if (can("bonus") && Number.isFinite(nextBonus) && nextBonus !== roundBonus(user.bonus)) {
           payload.bonus = nextBonus;
         }
         if (can("invite") && Number.isInteger(nextInvite) && nextInvite !== user.invite_balance) {
@@ -248,14 +256,18 @@ export function UserForm({
         )}
 
         {mode === "edit" && can("bonus") && (
-          <Field label="魔力值" htmlFor="user-bonus" hint="可输入小数；调整会写入魔力账本">
+          <Field label="魔力值" htmlFor="user-bonus" hint="最多两位小数；调整会写入魔力账本">
             <Input
               id="user-bonus"
               type="number"
-              step="0.0001"
+              step="0.01"
               min="0"
               value={bonus}
               onChange={(event) => setBonus(event.target.value)}
+              onBlur={() => {
+                const value = Number(bonus);
+                if (Number.isFinite(value)) setBonus(bonusText(value));
+              }}
             />
           </Field>
         )}
