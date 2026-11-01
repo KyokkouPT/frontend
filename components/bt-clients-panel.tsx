@@ -55,9 +55,16 @@ export function BtClientsPanel({ data }: { data: BtClientsResponse }) {
                   </td>
                   <td className="px-3 py-2.5 font-mono text-xs">{client.client_code ?? "—"}</td>
                   <td className="px-3 py-2.5">
-                    <Badge tone={client.features === "4&6" ? "accent" : "muted"}>
-                      {client.features}
-                    </Badge>
+                    <div className="flex flex-wrap gap-1">
+                      {client.features === "4&6" ? (
+                        <>
+                          <Badge tone="accent">4</Badge>
+                          <Badge tone="accent">6</Badge>
+                        </>
+                      ) : (
+                        <Badge tone="muted">{client.features}</Badge>
+                      )}
+                    </div>
                   </td>
                   <td className="px-3 py-2.5 font-mono text-xs">{formatNumber(client.seeding)}</td>
                   <td className="px-3 py-2.5 font-mono text-xs">{formatNumber(client.leeching)}</td>
