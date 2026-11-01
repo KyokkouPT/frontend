@@ -54,6 +54,11 @@ export default async function UserPage({ params }: { params: Promise<{ name: str
         <StatCard label="分享率" value={formatRatio(profile.ratio)} tone="accent" />
         <StatCard label="做种时长" value={formatDuration(profile.seedtime)} />
       </div>
+      <p className="mb-6 text-2xs text-fg-2">
+        实际 ↑ {formatBytes(profile.raw_uploaded)} / ↓ {formatBytes(profile.raw_downloaded)}
+        {profile.uploaded > profile.raw_uploaded && ` · 兑换上传 +${formatBytes(profile.uploaded - profile.raw_uploaded)}`}
+        {profile.raw_downloaded > profile.downloaded && ` · 减免下载 −${formatBytes(profile.raw_downloaded - profile.downloaded)}`}
+      </p>
 
       <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-3">
         <StatCard label="发布" value={formatNumber(profile.published_count)} />

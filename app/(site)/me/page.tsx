@@ -91,6 +91,11 @@ export default async function MePage({
             <Row label="做种时长" value={formatDuration(user.seedtime)} />
             <Row label="魔力值" value={formatNumber(user.bonus)} />
           </dl>
+          <p className="mt-2 text-2xs leading-relaxed text-fg-2">
+            实际 ↑ {formatBytes(user.raw_uploaded)} / ↓ {formatBytes(user.raw_downloaded)}
+            {user.uploaded > user.raw_uploaded && ` · 兑换上传 +${formatBytes(user.uploaded - user.raw_uploaded)}`}
+            {user.raw_downloaded > user.downloaded && ` · 减免下载 −${formatBytes(user.raw_downloaded - user.downloaded)}`}
+          </p>
         </Panel>
 
         <div className="grid min-w-0 gap-6">

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import type { StaffUsersResponse } from "@kyokkou/contracts";
 import { getBootstrap } from "@/lib/bootstrap";
 import { ServerFetchError, serverFetch } from "@/lib/api/server";
-import { formatRatio } from "@/lib/format";
+import { formatBytes, formatRatio } from "@/lib/format";
 import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
 import { UserToolbox } from "@/components/user-toolbox";
@@ -125,7 +125,12 @@ export default async function StaffUsersPage({
                         {STATUS_LABEL[user.status] ?? user.status}
                       </Badge>
                     </td>
-                    <td className="px-3 py-3 font-mono text-xs">{formatRatio(user.ratio)}</td>
+                    <td className="px-3 py-3 font-mono text-xs">
+                      {formatRatio(user.ratio)}
+                      <span className="mt-0.5 block text-2xs text-fg-2">
+                        实际 ↑ {formatBytes(user.raw_uploaded)} / ↓ {formatBytes(user.raw_downloaded)}
+                      </span>
+                    </td>
                     <td className="px-4 py-3">
                       <UserToolbox user={user} />
                     </td>
