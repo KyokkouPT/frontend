@@ -24,6 +24,7 @@ export function SignupForm({
   const [username, setUsername] = useState(boundUsername ?? "");
   const [email, setEmail] = useState(boundEmail ?? "");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [inviteCode, setInviteCode] = useState(initialInvite);
   const [rulesAccepted, setRulesAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +66,14 @@ export function SignupForm({
 
     if (!rulesAccepted) {
       setError("请先阅读并同意站点规则");
+      return;
+    }
+    if (password.length < 8) {
+      setError("密码至少需要 8 位");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("两次输入的密码不一致");
       return;
     }
 
@@ -160,6 +169,19 @@ export function SignupForm({
             minLength={8}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+          />
+        </Field>
+
+        <Field label="确认密码" htmlFor="signup-password-confirm" required hint="再次输入相同密码">
+          <Input
+            id="signup-password-confirm"
+            name="password_confirm"
+            type="password"
+            autoComplete="new-password"
+            required
+            minLength={8}
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
           />
         </Field>
 
