@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { StaffSectionItem, StaffSettings, StaffSettingsResponse } from "@kyokkou/contracts";
-import { ApiClientError, apiFetch } from "@/lib/api/client";
+import { ApiClientError, apiFetch, apiPost } from "@/lib/api/client";
 import { Button } from "./ui/button";
 import { Field, Input, Select, Textarea } from "./ui/field";
 import { Notice } from "./notice";
@@ -233,11 +233,72 @@ export function SectionEditor({ initial }: { initial: StaffSectionItem[] }) {
   const [pending, setPending] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [newSlug, setNewSlug] = useState("");
+  const [newName, setNewName] = useState("");
+  const [newMode, setNewMode] = useState("pre");
+  const [newOrder, setNewOrder] = useState("0");
+  const [newCharter, setNewCharter] = useState("");
+  const [categoryInputs, setCategoryInputs] = useState<Record<string, { slug: string; name: string }>>(
+    {},
+  );
 
   function update(slug: string, values: Partial<StaffSectionItem>) {
     setItems((previous) =>
       previous.map((section) => (section.slug === slug ? { ...section, ...values } : section)),
     );
+  }
+
+  async function createSection() {
+    setPending("create-section");
+    setError(null);
+    setMessage(null);
+    try {
+      await apiPost("/api/v1/staff/sections", {
+        slug: newSlug.trim(),
+        name: newName.trim(),
+        review_mode: newMode,
+        display_order: Number(newOrder) || 0,
+        charter: newCharter.trim() || undefined,
+      });
+      setMessage(`已创建分区「${newName.trim()}」`);
+      setNewSlug("");
+      setNewName("");
+      setNewCharter("");
+      router.refresh();
+    } catch (caught) {
+      setError(errorText(caught, "创建分区失败"));
+    } finally {
+      setPending(null);
+    }
+  }
+
+  async function createCategory(section: StaffSectionItem) {
+    const input = categoryInputs[section.slug] ?? { slug: "", name: "" };
+    if (!input.slug.trim() || !input.name.trim()) {
+      setError("请填写分类标识与名称");
+      return;
+    }
+
+    setPending(`category-${section.slug}`);
+    setError(null);
+    setMessage(null);
+    try {
+      await apiPost("/api/v1/staff/categories", {
+        section_slug: section.slug,
+        slug: input.slug.trim(),
+        name: input.name.trim(),
+      });
+      setMessage(`已为「${section.name}」添加分类「${input.name.trim()}」`);
+      setCategoryInputs((previous) => ({
+        ...previous,
+        [section.slug]: { slug: "", name: "" },
+      }));
+      router.refresh();
+    } catch (caught) {
+      setError(errorText(caught, "添加分类失败"));
+    } finally {
+      setPending(null);
+    }
   }
 
   async function save(section: StaffSectionItem) {
@@ -267,6 +328,61 @@ export function SectionEditor({ initial }: { initial: StaffSectionItem[] }) {
     <div className="grid gap-4">
       {error && <Notice tone="warn">{error}</Notice>}
       {message && <Notice tone="info">{message}</Notice>}
+
+      <Panel title="新建分区" description="创建后可继续编辑；分区标识用于 URL，创建后不可修改">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label="分区标识（slug）" htmlFor="new-section-slug">
+            <Input
+              id="new-section-slug"
+              value={newSlug}
+              onChange={(event) =>
+                setNewSlug(event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))
+              }
+              placeholder="例如 anime"
+            />
+          </Field>
+          <Field label="名称" htmlFor="new-section-name">
+            <Input
+              id="new-section-name"
+              value={newName}
+              onChange={(event) => setNewName(event.target.value)}
+              placeholder="例如 动画"
+            />
+          </Field>
+          <Field label="审核模式" htmlFor="new-section-mode">
+            <Select id="new-section-mode" value={newMode} onChange={(event) => setNewMode(event.target.value)}>
+              <option value="pre">pre</option>
+              <option value="review">review</option>
+              <option value="staff">staff</option>
+            </Select>
+          </Field>
+          <Field label="排序" htmlFor="new-section-order">
+            <Input
+              id="new-section-order"
+              type="number"
+              value={newOrder}
+              onChange={(event) => setNewOrder(event.target.value)}
+            />
+          </Field>
+          <Field label="公告" htmlFor="new-section-charter">
+            <Textarea
+              id="new-section-charter"
+              value={newCharter}
+              onChange={(event) => setNewCharter(event.target.value)}
+            />
+          </Field>
+        </div>
+        <div className="mt-3">
+          <Button
+            variant="primary"
+            disabled={pending !== null || !newSlug.trim() || !newName.trim()}
+            onClick={() => void createSection()}
+          >
+            {pending === "create-section" ? "创建中…" : "创建分区"}
+          </Button>
+        </div>
+      </Panel>
+
       {items.map((section) => (
         <Panel key={section.slug} title={section.name} description={section.slug}>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -311,6 +427,48 @@ export function SectionEditor({ initial }: { initial: StaffSectionItem[] }) {
               分类：{section.categories.map((category) => category.name).join(" · ")}
             </p>
           )}
+          <div className="mt-3 grid gap-2 border-t border-line pt-3">
+            <p className="text-xs font-medium text-fg-2">添加分类</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Input
+                aria-label={`分类标识 ${section.slug}`}
+                placeholder="分类标识（slug）"
+                value={categoryInputs[section.slug]?.slug ?? ""}
+                onChange={(event) =>
+                  setCategoryInputs((previous) => ({
+                    ...previous,
+                    [section.slug]: {
+                      ...(previous[section.slug] ?? { name: "" }),
+                      slug: event.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
+                    },
+                  }))
+                }
+                className="h-9 w-44"
+              />
+              <Input
+                aria-label={`分类名称 ${section.slug}`}
+                placeholder="分类名称"
+                value={categoryInputs[section.slug]?.name ?? ""}
+                onChange={(event) =>
+                  setCategoryInputs((previous) => ({
+                    ...previous,
+                    [section.slug]: {
+                      ...(previous[section.slug] ?? { slug: "" }),
+                      name: event.target.value,
+                    },
+                  }))
+                }
+                className="h-9 w-44"
+              />
+              <Button
+                variant="default"
+                disabled={pending !== null}
+                onClick={() => void createCategory(section)}
+              >
+                添加分类
+              </Button>
+            </div>
+          </div>
           <div className="mt-3">
             <Button
               variant="primary"
