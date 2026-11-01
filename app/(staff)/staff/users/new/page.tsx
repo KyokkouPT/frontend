@@ -24,7 +24,7 @@ export default async function NewUserPage() {
 
   let classes: ClassesResponse["items"] = [];
   try {
-    classes = (await serverFetch<ClassesResponse>("/api/v1/classes")).items;
+    classes = (await serverFetch<ClassesResponse>("/api/v1/staff/users/classes")).items;
   } catch {
     classes = [];
   }

@@ -1,7 +1,7 @@
-import { notFound, redirect } from "next/navigation";
-import type { ClassesResponse, StaffUsersResponse } from "@kyokkou/contracts";
+import { redirect } from "next/navigation";
+import type { ClassesResponse } from "@kyokkou/contracts";
 import { getBootstrap } from "@/lib/bootstrap";
-import { ServerFetchError, serverFetch } from "@/lib/api/server";
+import { serverFetch } from "@/lib/api/server";
 import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
 import { UserForm } from "@/components/user-form";
@@ -9,15 +9,11 @@ import { Panel } from "@/components/ui/panel";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "编辑用户" };
+export const metadata = { title: "新建用户" };
 
-export default async function EditUserPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function NewUserPage() {
   const bootstrap = await getBootstrap();
-  if (!bootstrap?.me) redirect("/login?next=/staff/users");
+  if (!bootstrap?.me) redirect("/login?next=/staff/users/new");
   if (!bootstrap.permissions.includes("staff.users")) {
     return (
       <Panel title="无权访问">
@@ -26,37 +22,17 @@ export default async function EditUserPage({
     );
   }
 
-  const { id } = await params;
-  const numericId = Number(id);
-
-  let data: StaffUsersResponse;
   let classes: ClassesResponse["items"] = [];
   try {
-    [data, { items: classes }] = await Promise.all([
-      serverFetch<StaffUsersResponse>("/api/v1/staff/users"),
-      serverFetch<ClassesResponse>("/api/v1/classes"),
-    ]);
-  } catch (error) {
-    const message =
-      error instanceof ServerFetchError
-        ? `后端返回 ${String(error.status)}：${error.message}`
-        : error instanceof Error
-          ? error.message
-          : "无法连接后端";
-    return (
-      <Panel title="用户加载失败">
-        <Notice tone="warn">{message}</Notice>
-      </Panel>
-    );
+    classes = (await serverFetch<ClassesResponse>("/api/v1/staff/users/classes")).items;
+  } catch {
+    classes = [];
   }
-
-  const user = data.items.find((item) => item.id === numericId);
-  if (!user) notFound();
 
   return (
     <>
-      <PageHeader title={`编辑用户 · ${user.username}`} description={user.email} />
-      <UserForm mode="edit" user={user} classes={classes} />
+      <PageHeader title="新建用户" description="创建后可直接用该用户名与密码登录。" />
+      <UserForm mode="create" classes={classes} />
     </>
   );
 }
