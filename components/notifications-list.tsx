@@ -10,16 +10,24 @@ import { cn } from "@/lib/cn";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { EmptyState } from "./ui/empty-state";
-import { Markdown } from "./markdown";
 import { Notice } from "./notice";
 
-export function NotificationsList({ initial }: { initial: NotificationsResponse }) {
-  const router = useRouter();
+export function NotificationsList({ initial }: { initial: NotificationsResponse }) {  const router = useRouter();
   const [items, setItems] = useState(initial.items);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   const unread = items.filter((item) => item.read_at === null).length;
+
+  function summary(text: string): string {
+    const plain = text
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+      .replace(/[#>*_`~|]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    return plain.length > 120 ? `${plain.slice(0, 120)}…` : plain;
+  }
 
   async function markAll() {
     setPending(true);
@@ -72,17 +80,25 @@ export function NotificationsList({ initial }: { initial: NotificationsResponse 
               )}
             >
               <div className="flex flex-wrap items-center gap-2">
-                <b className="text-sm font-semibold">{item.title}</b>
+                <Link
+                  href={`/notifications/${String(item.id)}`}
+                  prefetch={false}
+                  className="text-sm font-semibold hover:text-accent"
+                >
+                  {item.title}
+                </Link>
                 {item.read_at === null && <Badge tone="accent">未读</Badge>}
                 <span className="ml-auto text-2xs text-fg-2">{formatRelativeTime(item.created_at)}</span>
               </div>
-              <Markdown className="mt-1 text-xs">{item.body}</Markdown>
+              <p className="mt-1 text-xs leading-relaxed text-fg-1">{summary(item.body)}</p>
               <div className="mt-2 flex items-center gap-3 text-xs">
-                {item.link_url && (
-                  <Link href={item.link_url} className="text-accent hover:underline">
-                    查看详情
-                  </Link>
-                )}
+                <Link
+                  href={`/notifications/${String(item.id)}`}
+                  prefetch={false}
+                  className="text-accent hover:underline"
+                >
+                  查看详情
+                </Link>
                 {item.read_at === null && (
                   <button
                     type="button"
