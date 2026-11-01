@@ -84,6 +84,8 @@ const PERMISSION_GROUPS: { label: string; items: { key: string; label: string }[
       { key: "staff.audit", label: "审计日志" },
       { key: "staff.settings", label: "站点设置/调度" },
       { key: "staff.classes", label: "等级管理" },
+      { key: "staff.class_simulate", label: "升降模拟" },
+      { key: "staff.class_history", label: "等级历史" },
       { key: "staff.appeals", label: "申诉处理" },
       { key: "staff.announcement", label: "公告管理" },
       { key: "staff.user_edit", label: "修改用户资料" },

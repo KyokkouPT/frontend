@@ -1,12 +1,15 @@
 import {
+  Activity,
   AlertTriangle,
   BookOpen,
   ClipboardCheck,
   CloudDownload,
   Compass,
   Gauge,
+  History,
   Home,
   Inbox,
+  Layers,
   ScrollText,
   Settings,
   ShieldAlert,
@@ -43,6 +46,9 @@ const ICONS: Record<string, LucideIcon> = {
   "shield-check": ShieldCheck,
   "scroll-text": ScrollText,
   "user-cog": UserCog,
+  layers: Layers,
+  history: History,
+  activity: Activity,
 };
 
 export function navIcon(key: string): LucideIcon {

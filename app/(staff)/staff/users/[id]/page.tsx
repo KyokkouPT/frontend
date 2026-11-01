@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
 import type { ClassesResponse, StaffUsersResponse } from "@kyokkou/contracts";
 import { getBootstrap } from "@/lib/bootstrap";
 import { ServerFetchError, serverFetch } from "@/lib/api/server";
@@ -56,6 +57,11 @@ export default async function EditUserPage({
   return (
     <>
       <PageHeader title={`编辑用户 · ${user.username}`} description={user.email} />
+      <p className="mb-3 text-xs text-fg-2">
+        <Link href={`/staff/classes/history?user_id=${String(user.id)}`} className="text-accent hover:underline">
+          查看该用户的等级历史 →
+        </Link>
+      </p>
       <UserForm mode="edit" user={user} classes={classes} />
     </>
   );

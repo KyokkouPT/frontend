@@ -61,6 +61,8 @@ export default async function StaffPage() {
             ["用户管理", "/staff/users"],
             ["等级管理", "/staff/classes"],
             ["等级规则", "/staff/classes/rules"],
+            ["升降模拟", "/staff/classes/simulate"],
+            ["等级历史", "/staff/classes/history"],
             ["反作弊", "/staff/anomalies"],
             ["审计日志", "/staff/audit"],
             ["申诉", "/staff/appeals"],
