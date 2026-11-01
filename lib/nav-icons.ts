@@ -10,6 +10,7 @@ import {
   Home,
   Inbox,
   Layers,
+  Mail,
   ScrollText,
   Settings,
   ShieldAlert,
@@ -49,6 +50,7 @@ const ICONS: Record<string, LucideIcon> = {
   layers: Layers,
   history: History,
   activity: Activity,
+  mail: Mail,
 };
 
 export function navIcon(key: string): LucideIcon {
