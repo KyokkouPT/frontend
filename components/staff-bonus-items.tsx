@@ -230,7 +230,11 @@ export function StaffBonusItems({ initial }: { initial: StaffExchangeItem[] }) {
                 id="shop-key"
                 value={form.key}
                 disabled={editingId !== null}
-                onChange={(event) => patch({ key: event.target.value })}
+                onChange={(event) =>
+                  patch({
+                    key: event.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""),
+                  })
+                }
               />
             </Field>
             <Field label="名称" htmlFor="shop-name" required>
