@@ -13,6 +13,7 @@ import {
   Music,
   Sparkles,
   Timer,
+  Upload,
   Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -75,15 +76,24 @@ export default async function HomePage() {
             )}
           </p>
         </div>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex flex-wrap items-center gap-2">
           {me ? (
-            <Link
-              href="/me"
-              className="inline-flex h-10 items-center gap-2 rounded-sm border border-line bg-surface-1 px-4 text-base font-medium text-fg-0 transition-colors hover:border-line-strong hover:bg-surface-2"
-            >
-              <Users className="size-4" />
-              我的概览
-            </Link>
+            <>
+              <Link
+                href="/upload"
+                className="inline-flex h-10 items-center gap-2 rounded-sm border border-accent bg-accent px-4 text-base font-semibold text-accent-ink transition hover:brightness-110"
+              >
+                <Upload className="size-4" />
+                发布种子
+              </Link>
+              <Link
+                href="/me"
+                className="inline-flex h-10 items-center gap-2 rounded-sm border border-line bg-surface-1 px-4 text-base font-medium text-fg-0 transition-colors hover:border-line-strong hover:bg-surface-2"
+              >
+                <Users className="size-4" />
+                我的概览
+              </Link>
+            </>
           ) : (
             <Link
               href="/login"

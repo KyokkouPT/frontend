@@ -40,6 +40,7 @@ export function Sidebar() {
   const bootstrap = useBootstrap();
   const pathname = usePathname() ?? "/";
   const groups = bootstrap?.nav.site ?? [];
+  const staffItems = (bootstrap?.nav.staff ?? []).flatMap((group) => group.items);
 
   return (
     <aside className="sticky top-14 hidden h-[calc(100dvh-3.5rem)] flex-col gap-6 overflow-y-auto overscroll-contain border-r border-line px-3 py-4 md:flex max-xl:px-2">
@@ -59,6 +60,17 @@ export function Sidebar() {
           ))}
         </nav>
       ))}
+
+      {staffItems.length > 0 && (
+        <nav className="grid gap-px" aria-label="站务">
+          <p className="px-3 pb-2 text-2xs font-semibold tracking-[0.08em] text-fg-2 uppercase max-xl:hidden">
+            站务
+          </p>
+          {staffItems.map((item) => (
+            <NavRow key={item.key} item={item} pathname={pathname} />
+          ))}
+        </nav>
+      )}
 
       <div className="mt-auto hidden rounded-md border border-line bg-surface-1 px-3 py-3 xl:block">
         <p className="text-2xs font-semibold tracking-[0.08em] text-fg-2 uppercase">版本</p>

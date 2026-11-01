@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bell } from "lucide-react";
+import { Bell, Upload } from "lucide-react";
 import { ThemeSwitch } from "./theme-switch";
 import { UserMenu } from "./user-menu";
 import { MobileNav } from "./mobile-nav";
@@ -48,6 +48,15 @@ export function TopBar() {
       )}
 
       <div className="ml-auto flex shrink-0 items-center gap-0.5">
+        {me && (
+          <Link
+            href="/upload"
+            className="mr-1 inline-flex h-10 items-center gap-1.5 rounded-sm border border-accent bg-accent px-3 text-sm font-semibold text-accent-ink transition hover:brightness-110 md:h-[34px]"
+          >
+            <Upload className="size-4" />
+            <span className="max-sm:hidden">发布</span>
+          </Link>
+        )}
         {unread > 0 && (
           <Link
             href="/notifications"
