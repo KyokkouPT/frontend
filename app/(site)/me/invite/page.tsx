@@ -45,6 +45,7 @@ export default async function InvitePage() {
         <InviteManager
           initial={data}
           requireEmail={bootstrap.site.registration.invite_require_email}
+          requireUsername={bootstrap.site.registration.invite_require_username}
         />
       </Panel>
     </>

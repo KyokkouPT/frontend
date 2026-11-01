@@ -12,20 +12,25 @@ import { Notice } from "./notice";
 export function SignupForm({
   registration,
   inviteCode: initialInvite,
-  initialEmail = "",
+  boundEmail = null,
+  boundUsername = null,
 }: {
   registration: SiteRegistration | null;
   inviteCode: string;
-  initialEmail?: string;
+  boundEmail?: string | null;
+  boundUsername?: string | null;
 }) {
   const router = useRouter();
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState(initialEmail);
+  const [username, setUsername] = useState(boundUsername ?? "");
+  const [email, setEmail] = useState(boundEmail ?? "");
   const [password, setPassword] = useState("");
   const [inviteCode, setInviteCode] = useState(initialInvite);
   const [rulesAccepted, setRulesAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const inviteLocked = initialInvite.trim().length > 0;
+  const usernameLocked = Boolean(boundUsername);
+  const emailLocked = Boolean(boundEmail);
 
   if (registration) {
     const closedMode = registration.closed_registration_mode ?? "auto";
@@ -102,7 +107,16 @@ export function SignupForm({
       )}
 
       <form onSubmit={onSubmit} className="mt-6 grid gap-4" noValidate>
-        <Field label="用户名" htmlFor="signup-username" required hint="3–32 位，小写字母/数字/下划线/连字符">
+        <Field
+          label="用户名"
+          htmlFor="signup-username"
+          required
+          hint={
+            usernameLocked
+              ? "该用户名由邀请码预注册，不能修改"
+              : "3–32 位，小写字母/数字/下划线/连字符"
+          }
+        >
           <Input
             id="signup-username"
             name="username"
@@ -112,6 +126,7 @@ export function SignupForm({
             required
             minLength={3}
             maxLength={32}
+            readOnly={usernameLocked}
             value={username}
             onChange={(event) => setUsername(event.target.value)}
           />
@@ -121,7 +136,7 @@ export function SignupForm({
           label="邮箱"
           htmlFor="signup-email"
           required
-          hint={initialEmail ? "该邮箱由邀请链接预注册，不能修改" : undefined}
+          hint={emailLocked ? "该邮箱由邀请码预注册，不能修改" : undefined}
         >
           <Input
             id="signup-email"
@@ -129,7 +144,7 @@ export function SignupForm({
             type="email"
             autoComplete="email"
             required
-            readOnly={Boolean(initialEmail)}
+            readOnly={emailLocked}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
@@ -148,11 +163,16 @@ export function SignupForm({
           />
         </Field>
 
-        <Field label="邀请码" htmlFor="signup-invite" hint="开放注册时可留空">
+        <Field
+          label="邀请码"
+          htmlFor="signup-invite"
+          hint={inviteLocked ? "邀请码来自当前注册链接，不能修改" : "开放注册时可留空"}
+        >
           <Input
             id="signup-invite"
             name="invite_code"
             value={inviteCode}
+            readOnly={inviteLocked}
             onChange={(event) => setInviteCode(event.target.value)}
             placeholder="KYKDEMO1"
           />

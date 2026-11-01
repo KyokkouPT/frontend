@@ -107,6 +107,17 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
             />
             生成邀请码时要求填写预注册邮箱
           </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={settings.registration.invite_require_username}
+              onChange={(event) =>
+                patch("registration", { invite_require_username: event.target.checked })
+              }
+              className="size-[15px] accent-accent"
+            />
+            生成邀请码时要求填写预注册用户名
+          </label>
           <Field label="关闭注册时的提示" htmlFor="registration-closed">
             <Textarea
               id="registration-closed"

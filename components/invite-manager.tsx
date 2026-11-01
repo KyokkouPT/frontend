@@ -14,13 +14,16 @@ import { Notice } from "./notice";
 export function InviteManager({
   initial,
   requireEmail,
+  requireUsername,
 }: {
   initial: InvitesResponse;
   requireEmail: boolean;
+  requireUsername: boolean;
 }) {
   const router = useRouter();
   const [items, setItems] = useState<InviteItem[]>(initial.items);
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
@@ -35,9 +38,11 @@ export function InviteManager({
     try {
       const created = await apiPost<InviteItem>("/api/v1/me/invites", {
         ...(email.trim() ? { email: email.trim() } : {}),
+        ...(username.trim() ? { username: username.trim() } : {}),
       });
       setItems((previous) => [created, ...previous]);
       setEmail("");
+      setUsername("");
       router.refresh();
     } catch (createError) {
       setError(createError instanceof ApiClientError ? createError.message : "生成失败，请稍后重试");
@@ -49,7 +54,6 @@ export function InviteManager({
   function inviteLink(item: InviteItem): string {
     const url = new URL("/signup", window.location.origin);
     url.searchParams.set("invite", item.code);
-    if (item.email) url.searchParams.set("email", item.email);
     return url.toString();
   }
 
@@ -73,7 +77,12 @@ export function InviteManager({
         <Button
           variant="primary"
           className="ml-auto"
-          disabled={pending || unusedCount >= initial.quota_total || (requireEmail && !email.trim())}
+          disabled={
+            pending ||
+            unusedCount >= initial.quota_total ||
+            (requireEmail && !email.trim()) ||
+            (requireUsername && !username.trim())
+          }
           onClick={() => void create()}
         >
           {pending ? "生成中…" : "生成邀请码"}
@@ -85,7 +94,7 @@ export function InviteManager({
           label="预注册邮箱"
           htmlFor="invite-email"
           required
-          hint="接收者必须用该邮箱注册，邀请链接会自动携带邮箱"
+          hint="接收者必须用该邮箱注册，注册页会通过邀请码读取并锁定"
         >
           <Input
             id="invite-email"
@@ -93,6 +102,26 @@ export function InviteManager({
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="invitee@example.com"
+          />
+        </Field>
+      )}
+
+      {requireUsername && (
+        <Field
+          label="预注册用户名"
+          htmlFor="invite-username"
+          required
+          hint="3–32 位小写 ASCII；注册页会通过邀请码读取并锁定"
+        >
+          <Input
+            id="invite-username"
+            value={username}
+            autoCapitalize="none"
+            spellCheck={false}
+            onChange={(event) =>
+              setUsername(event.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))
+            }
+            placeholder="invitee"
           />
         </Field>
       )}
@@ -120,6 +149,9 @@ export function InviteManager({
               )}
               {item.email && (
                 <span className="text-2xs text-fg-2">预注册邮箱：{item.email}</span>
+              )}
+              {item.username && (
+                <span className="text-2xs text-fg-2">预注册用户名：{item.username}</span>
               )}
               {item.status === "unused" && (
                 <Button variant="ghost" className="ml-auto" onClick={() => void copy(item)}>
