@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import type { ClassNotificationTemplates, ClassRulesSettings } from "@kyokkou/contracts";
+import type { ClassesResponse, ClassNotificationTemplates, ClassRulesSettings } from "@kyokkou/contracts";
 import { getBootstrap } from "@/lib/bootstrap";
 import { ServerFetchError, serverFetch } from "@/lib/api/server";
 import { Notice } from "@/components/notice";
@@ -24,10 +24,12 @@ export default async function ClassRulesPage() {
 
   let rules: ClassRulesSettings;
   let templates: ClassNotificationTemplates;
+  let classes: ClassesResponse["items"] = [];
   try {
-    [rules, templates] = await Promise.all([
+    [rules, templates, { items: classes }] = await Promise.all([
       serverFetch<ClassRulesSettings>("/api/v1/staff/classes/rules"),
       serverFetch<ClassNotificationTemplates>("/api/v1/staff/classes/notifications"),
+      serverFetch<ClassesResponse>("/api/v1/staff/classes"),
     ]);
   } catch (error) {
     const message =
@@ -49,7 +51,7 @@ export default async function ClassRulesPage() {
         title="等级规则"
         description="分享率矩阵默认启用；通知模板支持占位符。重算调度在站点设置中配置。"
       />
-      <ClassRulesForm initialRules={rules} initialTemplates={templates} />
+      <ClassRulesForm initialRules={rules} initialTemplates={templates} classes={classes} />
     </>
   );
 }

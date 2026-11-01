@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import type { ClassNotificationTemplates, ClassRulesSettings } from "@kyokkou/contracts";
 import { ApiClientError, apiFetch } from "@/lib/api/client";
 import { Button } from "./ui/button";
-import { Field, Input, Textarea } from "./ui/field";
+import { Field, Input, Select, Textarea } from "./ui/field";
 import { Notice } from "./notice";
 import { Panel } from "./ui/panel";
 
@@ -15,12 +15,15 @@ let nextRowId = 1;
 export function ClassRulesForm({
   initialRules,
   initialTemplates,
+  classes,
 }: {
   initialRules: ClassRulesSettings;
   initialTemplates: ClassNotificationTemplates;
+  classes: { slug: string; name: string; rank: number }[];
 }) {
   const router = useRouter();
   const [matrixEnabled, setMatrixEnabled] = useState(initialRules.matrix_enabled);
+  const [matrixTarget, setMatrixTarget] = useState(initialRules.matrix_target_slug);
   const [rows, setRows] = useState<MatrixRow[]>(() =>
     initialRules.ratio_matrix.map((row) => ({ ...row, id: nextRowId++ })),
   );
@@ -38,6 +41,7 @@ export function ClassRulesForm({
         method: "PUT",
         body: JSON.stringify({
           matrix_enabled: matrixEnabled,
+          matrix_target_slug: matrixTarget,
           ratio_matrix: rows
             .map(({ download_gb, min_ratio }) => ({ download_gb: Number(download_gb), min_ratio: Number(min_ratio) }))
             .sort((a, b) => a.download_gb - b.download_gb),
@@ -71,6 +75,23 @@ export function ClassRulesForm({
             />
             启用分享率矩阵
           </label>
+          <Field
+            label="矩阵降级目标等级"
+            htmlFor="matrix-target"
+            hint="命中矩阵后统一降入该等级；目标等级需低于当前等级才会生效"
+          >
+            <Select
+              id="matrix-target"
+              value={matrixTarget}
+              onChange={(event) => setMatrixTarget(event.target.value)}
+            >
+              {classes.map((item) => (
+                <option key={item.slug} value={item.slug}>
+                  {item.name}（{item.slug}，rank {item.rank}）
+                </option>
+              ))}
+            </Select>
+          </Field>
           <div className="grid gap-2">
             {rows.map((row) => (
               <div key={row.id} className="flex flex-wrap items-end gap-2 rounded-sm border border-line bg-surface-2 p-2">
