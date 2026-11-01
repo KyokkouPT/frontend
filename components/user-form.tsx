@@ -59,7 +59,7 @@ export function UserForm({
       } else if (user) {
         const nextUploaded = Math.floor(Number(uploadedGb) * GB);
         const nextDownloaded = Math.floor(Number(downloadedGb) * GB);
-        const nextBonus = Math.floor(Number(bonus));
+        const nextBonus = Number(bonus);
         await apiFetch(`/api/v1/staff/users/${String(user.id)}`, {
           method: "PUT",
           body: JSON.stringify({
@@ -169,11 +169,11 @@ export function UserForm({
               />
             </Field>
 
-            <Field label="魔力值" htmlFor="user-bonus" hint="整数；调整会写入魔力账本">
+            <Field label="魔力值" htmlFor="user-bonus" hint="可输入小数；调整会写入魔力账本">
               <Input
                 id="user-bonus"
                 type="number"
-                step="1"
+                step="0.0001"
                 min="0"
                 value={bonus}
                 onChange={(event) => setBonus(event.target.value)}

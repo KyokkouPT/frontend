@@ -7,7 +7,7 @@ import { Notice } from "@/components/notice";
 import { ExchangeList } from "@/components/bonus-exchange";
 import { Panel } from "@/components/ui/panel";
 import { StatCard } from "@/components/ui/stat";
-import { formatDate, formatNumber, formatRelativeTime } from "@/lib/format";
+import { formatBonus, formatDate, formatNumber, formatRelativeTime } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +40,7 @@ export default async function BonusPage() {
     <>
       <PageHeader
         title="魔力值"
-        count={formatNumber(bonus.balance)}
+        count={formatBonus(bonus.balance)}
         description="做种产出按时间结算，每次余额变化都会写入账本。"
       />
 
@@ -51,10 +51,10 @@ export default async function BonusPage() {
       )}
 
       <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
-        <StatCard label="当前余额" value={formatNumber(bonus.balance)} tone="accent" />
+        <StatCard label="当前余额" value={formatBonus(bonus.balance)} tone="accent" />
         <StatCard
           label="每小时产出"
-          value={bonus.yield_per_hour.toFixed(2)}
+          value={formatBonus(bonus.yield_per_hour)}
           sub="按做种数与体积计算"
           tone={frozen ? "warn" : "default"}
         />
@@ -95,10 +95,10 @@ export default async function BonusPage() {
                         }`}
                       >
                         {entry.delta > 0 ? "+" : ""}
-                        {formatNumber(entry.delta)}
+                        {formatBonus(entry.delta)}
                       </td>
                       <td className="px-3 py-2.5 text-right font-mono text-xs">
-                        {formatNumber(entry.balance_after)}
+                        {formatBonus(entry.balance_after)}
                       </td>
                       <td className="max-w-[320px] truncate px-4 py-2.5 text-xs text-fg-2">
                         {entry.note ?? "—"}

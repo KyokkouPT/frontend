@@ -6,6 +6,7 @@ import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
 import { SettingsEditor } from "@/components/staff-config";
 import { ClassSchedulerPanel } from "@/components/class-scheduler-panel";
+import { BonusFormulaPanel } from "@/components/bonus-formula-editor";
 import { Panel } from "@/components/ui/panel";
 
 export const dynamic = "force-dynamic";
@@ -47,7 +48,8 @@ export default async function StaffSettingsPage() {
         description="保存后立即影响 bootstrap、注册、Tracker 与经济；写入审计日志（settings.update）。"
       />
       <SettingsEditor initial={data.settings} />
-      <div className="mt-6">
+      <div className="mt-6 grid gap-6">
+        <BonusFormulaPanel initial={data.settings.bonus} />
         <ClassSchedulerPanel initial={data.settings.classes} />
       </div>
     </>

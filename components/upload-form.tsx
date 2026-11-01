@@ -19,6 +19,7 @@ export function UploadForm({ sections }: { sections: Section[] }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [promo, setPromo] = useState("none");
+  const [zeroBonus, setZeroBonus] = useState(false);
   const [tags, setTags] = useState("");
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
@@ -57,6 +58,7 @@ export function UploadForm({ sections }: { sections: Section[] }) {
       form.set("name", name);
       form.set("description", description);
       form.set("promo", promo);
+      form.set("zero_bonus", zeroBonus ? "true" : "false");
       form.set("tags", tags);
       form.set("meta", JSON.stringify(fieldValues));
 
@@ -146,6 +148,18 @@ export function UploadForm({ sections }: { sections: Section[] }) {
               onChange={(event) => setTags(event.target.value)}
               placeholder="中字,HDR"
             />
+          </Field>
+
+          <Field label="零魔种子" htmlFor="upload-zero-bonus" hint="做种魔力权重 0.2；与免费促销独立">
+            <label className="flex h-10 items-center gap-2 text-sm md:h-[34px]">
+              <input
+                id="upload-zero-bonus"
+                type="checkbox"
+                checked={zeroBonus}
+                onChange={(event) => setZeroBonus(event.target.checked)}
+              />
+              标记为独立零魔种子
+            </label>
           </Field>
 
           <Field label="描述" htmlFor="upload-description" className="sm:col-span-2">

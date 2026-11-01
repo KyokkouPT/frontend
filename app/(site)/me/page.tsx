@@ -3,7 +3,7 @@ import { Timer } from "lucide-react";
 import type { MeResponse } from "@kyokkou/contracts";
 import { getBootstrap } from "@/lib/bootstrap";
 import { ServerFetchError, serverFetch } from "@/lib/api/server";
-import { formatBytes, formatDate, formatDuration, formatNumber, formatRatio } from "@/lib/format";
+import { formatBonus, formatBytes, formatDate, formatDuration, formatNumber, formatRatio } from "@/lib/format";
 import { PageHeader } from "@/components/page-header";
 import { Notice } from "@/components/notice";
 import { RatioRing } from "@/components/ratio-ring";
@@ -91,7 +91,7 @@ export default async function MePage({
             <Row label="实际下载量" value={formatBytes(user.raw_downloaded)} />
             <Row label="分享率" value={formatRatio(user.ratio)} />
             <Row label="做种时长" value={formatDuration(user.seedtime)} />
-            <Row label="魔力值" value={formatNumber(user.bonus)} />
+            <Row label="魔力值" value={formatBonus(user.bonus)} />
           </dl>
         </Panel>
 
@@ -100,7 +100,7 @@ export default async function MePage({
             <StatCard label="发布" value={formatNumber(me.stats.published)} sub="已通过审核" />
             <StatCard label="做种" value={formatNumber(me.stats.seeding)} sub="个种子" />
             <StatCard label="下载中" value={formatNumber(me.stats.leeching)} sub="个种子" />
-            <StatCard label="魔力值" value={formatNumber(user.bonus)} sub="当前余额" tone="accent" />
+            <StatCard label="魔力值" value={formatBonus(user.bonus)} sub="当前余额" tone="accent" />
           </div>
 
           <Panel title="H&R 义务" description="下载量达到策略阈值后会生成保种义务">

@@ -18,6 +18,12 @@ export function formatNumber(value: number): string {
   return new Intl.NumberFormat("zh-CN").format(value);
 }
 
+/** 魔力值展示统一保留 1 位小数；数据库仍保存精确浮点。 */
+export function formatBonus(value: number): string {
+  if (!Number.isFinite(value)) return "0.0";
+  return value.toFixed(1);
+}
+
 export function formatRatio(ratio: number | null): string {
   if (ratio === null) return "∞";
   return ratio.toFixed(2);

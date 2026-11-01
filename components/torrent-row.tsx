@@ -6,6 +6,7 @@ import { cn } from "@/lib/cn";
 import { formatBytes, formatRelativeTime } from "@/lib/format";
 import { Avatar } from "./ui/avatar";
 import { PromoBadge } from "./promo-badge";
+import { ZeroBonusBadge } from "./zero-bonus-badge";
 
 /** 种子列表行：标题进详情，下载按钮按登录态指向下载或登录。 */
 export function TorrentRow({ torrent, canDownload = false }: { torrent: TorrentSummary; canDownload?: boolean }) {
@@ -36,8 +37,8 @@ export function TorrentRow({ torrent, canDownload = false }: { torrent: TorrentS
           >
             {torrent.name}
           </Link>
-          {torrent.tags.slice(0, 2).map((tag, index) => (
-            <span
+          {torrent.zero_bonus && <ZeroBonusBadge />}
+          {torrent.tags.slice(0, 2).map((tag, index) => (            <span
               key={tag}
               className={cn(
                 "hidden shrink-0 items-center rounded-pill border px-1.5 py-px text-2xs sm:inline-flex",

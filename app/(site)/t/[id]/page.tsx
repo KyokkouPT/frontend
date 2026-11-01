@@ -8,6 +8,8 @@ import { formatBytes, formatDate, formatNumber, formatRelativeTime } from "@/lib
 import { Breadcrumbs, PageHeader } from "@/components/page-header";
 import { Notice } from "@/components/notice";
 import { PromoBadge } from "@/components/promo-badge";
+import { ZeroBonusBadge } from "@/components/zero-bonus-badge";
+import { ZeroBonusToggle } from "@/components/zero-bonus-toggle";
 import { TorrentRow } from "@/components/torrent-row";
 import { Badge } from "@/components/ui/badge";
 import { Panel } from "@/components/ui/panel";
@@ -58,6 +60,7 @@ export default async function TorrentDetailPage({
         title={
           <>
             <PromoBadge promo={detail.promo} className="mr-3" />
+            {detail.zero_bonus && <ZeroBonusBadge className="mr-3" />}
             {detail.name}
           </>
         }
@@ -137,6 +140,12 @@ export default async function TorrentDetailPage({
               </div>
             )}
           </Panel>
+
+          {me && (detail.owned || bootstrap?.permissions.includes("torrent.edit")) && (
+            <Panel title="零魔标记" description="独立于促销；只影响做种魔力权重">
+              <ZeroBonusToggle torrentId={detail.id} initial={detail.zero_bonus} />
+            </Panel>
+          )}
 
           <Panel title="标签">
             {detail.tags.length === 0 ? (

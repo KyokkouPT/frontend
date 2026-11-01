@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import type { ClassSimulationResponse, ClassSimulationSearchResponse } from "@kyokkou/contracts";
 import { ApiClientError, apiFetch } from "@/lib/api/client";
-import { formatBytes, formatRatio } from "@/lib/format";
+import { formatBonus, formatBytes, formatRatio } from "@/lib/format";
 import { Button } from "./ui/button";
 import { Field, Input } from "./ui/field";
 import { Notice } from "./notice";
@@ -174,7 +174,7 @@ export function ClassSimulator() {
               <Metric label="实际下载量" value={formatBytes(simulation.metrics.raw_downloaded)} />
               <Metric label="分享率" value={formatRatio(simulation.metrics.ratio)} />
               <Metric label="做种时长" value={`${simulation.metrics.seedtime_hours.toFixed(1)} 小时`} />
-              <Metric label="魔力/做种积分" value={String(simulation.metrics.bonus)} />
+              <Metric label="魔力/做种积分" value={formatBonus(simulation.metrics.bonus)} />
               <Metric label="发布数" value={String(simulation.metrics.torrents_published)} />
               <Metric label="已用邀请" value={String(simulation.metrics.invites_used)} />
               <Metric label="警告次数" value={String(simulation.metrics.warnings)} />

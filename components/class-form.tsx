@@ -57,6 +57,7 @@ const PERMISSION_GROUPS: { label: string; items: { key: string; label: string }[
     label: "用户 / 社区",
     items: [
       { key: "user.view_profile", label: "查看用户主页" },
+      { key: "user.donor", label: "捐赠者（魔力 3 倍）" },
       { key: "user.list", label: "查看会员列表" },
       { key: "user.search", label: "搜索用户" },
       { key: "user.view_history", label: "查看他人种子历史" },

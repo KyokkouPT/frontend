@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ExchangeItem, ExchangeResponse } from "@kyokkou/contracts";
 import { ApiClientError, apiPost } from "@/lib/api/client";
-import { formatNumber } from "@/lib/format";
+import { formatBonus } from "@/lib/format";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Notice } from "./notice";
@@ -68,7 +68,7 @@ export function ExchangeList({
                   <p className="mt-0.5 text-xs text-fg-2">{item.description ?? ""}</p>
                 </div>
                 <Badge tone="accent" mono className="ml-auto">
-                  {formatNumber(item.price)}
+                  {formatBonus(item.price)}
                 </Badge>
                 <Button
                   variant="primary"
