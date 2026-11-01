@@ -47,7 +47,7 @@ export function StaffShell({ children }: { children: ReactNode }) {
         <aside className="hidden border-r border-line p-3 md:block">
           <nav className="grid gap-1" aria-label="站务导航">
             {items.map((item) => {
-              const active = isNavItemActive(item, pathname);
+              const active = isNavItemActive(item, pathname, items);
               const Icon = navIcon(item.icon);
               return (
                 <Link
