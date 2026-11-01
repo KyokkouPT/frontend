@@ -83,6 +83,7 @@ export function SignupForm({
         username,
         email,
         password,
+        password_confirm: confirmPassword,
         rules_accepted: true,
         ...(inviteCode.trim() ? { invite_code: inviteCode.trim() } : {}),
       });
