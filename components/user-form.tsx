@@ -5,11 +5,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { StaffUserItem } from "@kyokkou/contracts";
 import { ApiClientError, apiFetch, apiPost } from "@/lib/api/client";
+import { formatBytes } from "@/lib/format";
 import { Button } from "./ui/button";
 import { Field, Input, Select } from "./ui/field";
 import { Notice } from "./notice";
 
 type ClassOption = { slug: string; name: string; rank: number };
+
+const GB = 1024 ** 3;
+
+function toGbText(bytes: number): string {
+  return String(Math.round((bytes / GB) * 100) / 100);
+}
 
 function errorText(error: unknown, fallback: string): string {
   return error instanceof ApiClientError ? (error.fields?.[0]?.message ?? error.message) : fallback;
@@ -31,6 +38,9 @@ export function UserForm({
   const [password, setPassword] = useState("");
   const [classSlug, setClassSlug] = useState(user?.class.slug ?? classes.find((item) => item.slug === "user")?.slug ?? "user");
   const [status, setStatus] = useState(user?.status ?? "active");
+  const [uploadedGb, setUploadedGb] = useState(user ? toGbText(user.uploaded) : "0");
+  const [downloadedGb, setDownloadedGb] = useState(user ? toGbText(user.downloaded) : "0");
+  const [bonus, setBonus] = useState(user ? String(user.bonus) : "0");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,6 +57,9 @@ export function UserForm({
           class_slug: classSlug,
         });
       } else if (user) {
+        const nextUploaded = Math.floor(Number(uploadedGb) * GB);
+        const nextDownloaded = Math.floor(Number(downloadedGb) * GB);
+        const nextBonus = Math.floor(Number(bonus));
         await apiFetch(`/api/v1/staff/users/${String(user.id)}`, {
           method: "PUT",
           body: JSON.stringify({
@@ -54,6 +67,13 @@ export function UserForm({
             class_slug: classSlug,
             status,
             ...(password ? { password } : {}),
+            ...(Number.isFinite(nextUploaded) && toGbText(nextUploaded) !== toGbText(user.uploaded)
+              ? { uploaded: nextUploaded }
+              : {}),
+            ...(Number.isFinite(nextDownloaded) && toGbText(nextDownloaded) !== toGbText(user.downloaded)
+              ? { downloaded: nextDownloaded }
+              : {}),
+            ...(Number.isFinite(nextBonus) && nextBonus !== user.bonus ? { bonus: nextBonus } : {}),
           }),
         });
       }
@@ -118,13 +138,56 @@ export function UserForm({
         </Field>
 
         {mode === "edit" && (
-          <Field label="状态" htmlFor="user-status">
-            <Select id="user-status" value={status} onChange={(event) => setStatus(event.target.value as typeof status)}>
-              <option value="active">正常</option>
-              <option value="suspended">停用</option>
-              <option value="banned">封禁</option>
-            </Select>
-          </Field>
+          <>
+            <Field
+              label="上传量（GB）"
+              htmlFor="user-uploaded"
+              hint={`计入量；实际 ${formatBytes(user?.raw_uploaded ?? 0)}，修改不改变实际流量`}
+            >
+              <Input
+                id="user-uploaded"
+                type="number"
+                step="0.01"
+                min="0"
+                value={uploadedGb}
+                onChange={(event) => setUploadedGb(event.target.value)}
+              />
+            </Field>
+
+            <Field
+              label="下载量（GB）"
+              htmlFor="user-downloaded"
+              hint={`计入量；实际 ${formatBytes(user?.raw_downloaded ?? 0)}，修改不改变实际流量`}
+            >
+              <Input
+                id="user-downloaded"
+                type="number"
+                step="0.01"
+                min="0"
+                value={downloadedGb}
+                onChange={(event) => setDownloadedGb(event.target.value)}
+              />
+            </Field>
+
+            <Field label="魔力值" htmlFor="user-bonus" hint="整数；调整会写入魔力账本">
+              <Input
+                id="user-bonus"
+                type="number"
+                step="1"
+                min="0"
+                value={bonus}
+                onChange={(event) => setBonus(event.target.value)}
+              />
+            </Field>
+
+            <Field label="状态" htmlFor="user-status">
+              <Select id="user-status" value={status} onChange={(event) => setStatus(event.target.value as typeof status)}>
+                <option value="active">正常</option>
+                <option value="suspended">停用</option>
+                <option value="banned">封禁</option>
+              </Select>
+            </Field>
+          </>
         )}
       </div>
 
