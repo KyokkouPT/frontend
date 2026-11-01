@@ -471,12 +471,16 @@ export function ClassForm({ mode, item }: { mode: "create" | "edit"; item?: Clas
             checked={demoteEnabled}
             onChange={(event) => setDemoteEnabled(event.target.checked)}
           />
-          独立降级条件（不勾选时按“最高符合等级”自动降级）
+          独立降级条件（勾选后只按此规则降级；不勾选时用升级规则判断）
         </label>
         {demoteEnabled && (
           <ConditionEditor logic={demoteLogic} onLogic={setDemoteLogic} rows={demoteRows} onChange={setDemoteRows} />
         )}
-        <Field label="降级缓冲（天）" htmlFor="class-demote-grace" hint="0 = 检测到立即降级；>0 先发预告">
+        <Field
+          label="降级观察期（天）"
+          htmlFor="class-demote-grace"
+          hint="0 = 命中后立即降级；>0 先预警，到期后重算才降级"
+        >
           <Input
             id="class-demote-grace"
             type="number"
