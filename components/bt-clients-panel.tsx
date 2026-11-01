@@ -58,8 +58,18 @@ export function BtClientsPanel({ data }: { data: BtClientsResponse }) {
                     <div className="flex flex-wrap gap-1">
                       {client.features === "4&6" ? (
                         <>
-                          <Badge tone="accent">4</Badge>
-                          <Badge tone="accent">6</Badge>
+                          <Badge
+                            tone="outline"
+                            className="border-transparent bg-accent/15 text-accent"
+                          >
+                            4
+                          </Badge>
+                          <Badge
+                            tone="outline"
+                            className="border-transparent bg-accent-2/15 text-accent-2"
+                          >
+                            6
+                          </Badge>
                         </>
                       ) : (
                         <Badge tone="muted">{client.features}</Badge>
