@@ -85,7 +85,7 @@ export function AccountPanel({ settings }: { settings: MeSettingsResponse }) {
       <Panel
         title="双因素认证"
         description={
-          twofaEnabled ? "已启用：登录需要动态码或恢复码（一次性）" : "未启用：建议开启以保护账号"
+          twofaEnabled ? "已启用：登录需要动态验证码" : "未启用：建议开启以保护账号"
         }
       >
         <div className="grid gap-3">

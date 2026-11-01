@@ -20,9 +20,15 @@ export function LoginForm({
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [totpCode, setTotpCode] = useState("");
-  const [recoveryCode, setRecoveryCode] = useState("");
+  const [captchaCode, setCaptchaCode] = useState("");
+  const [captchaVersion, setCaptchaVersion] = useState(() => Date.now());
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+
+  function refreshCaptcha(): void {
+    setCaptchaVersion(Date.now());
+    setCaptchaCode("");
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -33,8 +39,8 @@ export function LoginForm({
       await apiPost<LoginResponse>("/api/v1/auth/login", {
         username,
         password,
+        captcha_code: captchaCode.trim().toUpperCase(),
         ...(totpCode.trim() ? { totp_code: totpCode.trim() } : {}),
-        ...(recoveryCode.trim() ? { recovery_code: recoveryCode.trim() } : {}),
       });
       router.replace(next);
       router.refresh();
@@ -44,6 +50,7 @@ export function LoginForm({
       } else {
         setError("登录失败，请稍后重试");
       }
+      refreshCaptcha();
       setPending(false);
     }
   }
@@ -54,7 +61,6 @@ export function LoginForm({
       <p className="mt-1.5 text-sm text-fg-1">
         使用站点账号登录。启用两步验证后还需要输入动态验证码。
       </p>
-
       <form onSubmit={onSubmit} className="mt-6 grid gap-4" noValidate>
         <Field label="用户名或邮箱" htmlFor="username">
           <Input
@@ -84,6 +90,39 @@ export function LoginForm({
           />
         </Field>
 
+        <Field label="图形验证码" htmlFor="captcha_code" required hint="看不清可点击图片刷新">
+          <div className="flex items-center gap-2">
+            <img
+              key={captchaVersion}
+              src={`/api/v1/auth/captcha?t=${String(captchaVersion)}`}
+              alt="图形验证码"
+              width={150}
+              height={44}
+              className="h-11 w-[150px] rounded-sm border border-line bg-surface-0"
+            />
+            <button
+              type="button"
+              className="inline-flex h-9 items-center rounded-sm border border-line bg-surface-1 px-2.5 text-xs text-fg-1 hover:border-line-strong hover:text-fg-0"
+              onClick={refreshCaptcha}
+            >
+              刷新
+            </button>
+            <Input
+              id="captcha_code"
+              name="captcha_code"
+              autoComplete="off"
+              autoCapitalize="characters"
+              spellCheck={false}
+              required
+              maxLength={8}
+              value={captchaCode}
+              onChange={(event) => setCaptchaCode(event.target.value.toUpperCase())}
+              placeholder="输入图中字符"
+              className="flex-1"
+            />
+          </div>
+        </Field>
+
         <Field label="两步验证码" htmlFor="totp_code" hint="未启用 2FA 可留空">
           <Input
             id="totp_code"
@@ -94,17 +133,6 @@ export function LoginForm({
             value={totpCode}
             onChange={(event) => setTotpCode(event.target.value.replace(/\D/g, ""))}
             placeholder="6 位数字"
-          />
-        </Field>
-
-        <Field label="恢复码" htmlFor="recovery_code" hint="忘记动态码时使用，一次性">
-          <Input
-            id="recovery_code"
-            name="recovery_code"
-            autoComplete="off"
-            value={recoveryCode}
-            onChange={(event) => setRecoveryCode(event.target.value.toUpperCase())}
-            placeholder="XXXXXXXXXX"
           />
         </Field>
 
