@@ -8,11 +8,19 @@ import { formatDate, formatRelativeTime } from "@/lib/format";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { EmptyState } from "./ui/empty-state";
+import { Field, Input } from "./ui/field";
 import { Notice } from "./notice";
 
-export function InviteManager({ initial }: { initial: InvitesResponse }) {
+export function InviteManager({
+  initial,
+  requireEmail,
+}: {
+  initial: InvitesResponse;
+  requireEmail: boolean;
+}) {
   const router = useRouter();
   const [items, setItems] = useState<InviteItem[]>(initial.items);
+  const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
@@ -25,8 +33,11 @@ export function InviteManager({ initial }: { initial: InvitesResponse }) {
     setPending(true);
     setError(null);
     try {
-      const created = await apiPost<InviteItem>("/api/v1/me/invites", {});
+      const created = await apiPost<InviteItem>("/api/v1/me/invites", {
+        ...(email.trim() ? { email: email.trim() } : {}),
+      });
       setItems((previous) => [created, ...previous]);
+      setEmail("");
       router.refresh();
     } catch (createError) {
       setError(createError instanceof ApiClientError ? createError.message : "生成失败，请稍后重试");
@@ -35,13 +46,20 @@ export function InviteManager({ initial }: { initial: InvitesResponse }) {
     }
   }
 
-  async function copy(code: string) {
+  function inviteLink(item: InviteItem): string {
+    const url = new URL("/signup", window.location.origin);
+    url.searchParams.set("invite", item.code);
+    if (item.email) url.searchParams.set("email", item.email);
+    return url.toString();
+  }
+
+  async function copy(item: InviteItem) {
     try {
-      await navigator.clipboard.writeText(code);
-      setCopied(code);
+      await navigator.clipboard.writeText(inviteLink(item));
+      setCopied(item.code);
       window.setTimeout(() => setCopied(null), 2000);
     } catch {
-      setError("复制失败，请手动选择邀请码");
+      setError("复制失败，请手动复制邀请链接");
     }
   }
 
@@ -55,12 +73,29 @@ export function InviteManager({ initial }: { initial: InvitesResponse }) {
         <Button
           variant="primary"
           className="ml-auto"
-          disabled={pending || unusedCount >= initial.quota_total}
+          disabled={pending || unusedCount >= initial.quota_total || (requireEmail && !email.trim())}
           onClick={() => void create()}
         >
           {pending ? "生成中…" : "生成邀请码"}
         </Button>
       </div>
+
+      {requireEmail && (
+        <Field
+          label="预注册邮箱"
+          htmlFor="invite-email"
+          required
+          hint="接收者必须用该邮箱注册，邀请链接会自动携带邮箱"
+        >
+          <Input
+            id="invite-email"
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="invitee@example.com"
+          />
+        </Field>
+      )}
 
       {error && <Notice tone="warn">{error}</Notice>}
 
@@ -83,9 +118,12 @@ export function InviteManager({ initial }: { initial: InvitesResponse }) {
               {item.invited_user && (
                 <span className="text-2xs text-fg-2">已邀请：{item.invited_user}</span>
               )}
+              {item.email && (
+                <span className="text-2xs text-fg-2">预注册邮箱：{item.email}</span>
+              )}
               {item.status === "unused" && (
-                <Button variant="ghost" className="ml-auto" onClick={() => void copy(item.code)}>
-                  {copied === item.code ? "已复制" : "复制"}
+                <Button variant="ghost" className="ml-auto" onClick={() => void copy(item)}>
+                  {copied === item.code ? "已复制链接" : "复制邀请链接"}
                 </Button>
               )}
             </li>

@@ -12,13 +12,15 @@ import { Notice } from "./notice";
 export function SignupForm({
   registration,
   inviteCode: initialInvite,
+  initialEmail = "",
 }: {
   registration: SiteRegistration | null;
   inviteCode: string;
+  initialEmail?: string;
 }) {
   const router = useRouter();
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
   const [inviteCode, setInviteCode] = useState(initialInvite);
   const [rulesAccepted, setRulesAccepted] = useState(false);
@@ -27,10 +29,11 @@ export function SignupForm({
 
   if (registration) {
     const closedMode = registration.closed_registration_mode ?? "auto";
+    const hasInvite = initialInvite.trim().length > 0;
     const showForm =
       registration.open ||
-      closedMode === "form" ||
-      (closedMode === "auto" && registration.invite_registration_enabled);
+      hasInvite ||
+      closedMode === "form";
     if (!showForm) {
       return (
         <>
@@ -114,13 +117,19 @@ export function SignupForm({
           />
         </Field>
 
-        <Field label="邮箱" htmlFor="signup-email" required>
+        <Field
+          label="邮箱"
+          htmlFor="signup-email"
+          required
+          hint={initialEmail ? "该邮箱由邀请链接预注册，不能修改" : undefined}
+        >
           <Input
             id="signup-email"
             name="email"
             type="email"
             autoComplete="email"
             required
+            readOnly={Boolean(initialEmail)}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />

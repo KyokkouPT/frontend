@@ -42,7 +42,10 @@ export default async function InvitePage() {
         description="邀请码 30 天内有效；注册成功后邀请人会收到站内通知。"
       />
       <Panel title="我的邀请码">
-        <InviteManager initial={data} />
+        <InviteManager
+          initial={data}
+          requireEmail={bootstrap.site.registration.invite_require_email}
+        />
       </Panel>
     </>
   );

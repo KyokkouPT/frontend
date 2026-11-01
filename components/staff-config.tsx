@@ -96,6 +96,17 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
             />
             允许邀请码注册
           </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={settings.registration.invite_require_email}
+              onChange={(event) =>
+                patch("registration", { invite_require_email: event.target.checked })
+              }
+              className="size-[15px] accent-accent"
+            />
+            生成邀请码时要求填写预注册邮箱
+          </label>
           <Field label="关闭注册时的提示" htmlFor="registration-closed">
             <Textarea
               id="registration-closed"
@@ -106,7 +117,7 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
           <Field
             label="关闭注册时点击注册"
             htmlFor="registration-closed-mode"
-            hint="auto：允许邀请注册时显示表单，否则显示提示；form：始终显示表单；message：始终只显示提示"
+            hint="auto：无邀请码时显示提示，有邀请码时显示表单；form：无邀请码也显示表单；message：无邀请码只显示提示（有邀请码仍显示表单）"
           >
             <Select
               id="registration-closed-mode"
