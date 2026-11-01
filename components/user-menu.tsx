@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, LayoutDashboard, LogOut, User } from "lucide-react";
+import { ChevronDown, LayoutDashboard, LogOut, ShieldCheck, User } from "lucide-react";
 import type { UserSummary } from "@kyokkou/contracts";
 import { ApiClientError, apiPost } from "@/lib/api/client";
 import { Avatar } from "./ui/avatar";
@@ -179,6 +179,17 @@ export function UserMenu() {
               <LayoutDashboard className="size-4 shrink-0 opacity-80" />
               个人概览
             </Link>
+
+            {bootstrap?.permissions.includes("staff.access") && (
+              <Link
+                role="menuitem"
+                href="/staff"
+                className="flex h-8 items-center gap-2.5 rounded-sm px-2 text-[13px] text-fg-1 outline-none transition-colors hover:bg-surface-2 hover:text-fg-0 focus-visible:bg-surface-2 focus-visible:text-fg-0"
+              >
+                <ShieldCheck className="size-4 shrink-0 opacity-80" />
+                站务后台
+              </Link>
+            )}
           </div>
 
           <div className="h-px bg-line" />

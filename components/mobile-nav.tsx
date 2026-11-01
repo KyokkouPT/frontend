@@ -28,7 +28,6 @@ export function MobileNav() {
   const [shown, setShown] = useState(false);
   const pathname = usePathname() ?? "/";
   const siteGroups = bootstrap?.nav.site ?? [];
-  const staffItems = (bootstrap?.nav.staff ?? []).flatMap((group) => group.items);
   const siteName = bootstrap?.site.name ?? "KyokkouPT";
 
   useEffect(() => setIsClient(true), []);
@@ -154,27 +153,6 @@ export function MobileNav() {
                     </ul>
                   </div>
                 ))}
-
-                {staffItems.length > 0 && (
-                  <div className="grid gap-0.5 border-t border-line pt-3">
-                    <p className="px-3 pb-1 text-2xs font-semibold tracking-[0.08em] text-fg-2 uppercase">
-                      站务
-                    </p>
-                    <ul className="grid gap-0.5">
-                      {staffItems.map((item) => {
-                        const Icon = navIcon(item.icon);
-                        return (
-                          <li key={item.key}>
-                            <Link href={item.href} className={linkClass(item)} onClick={close}>
-                              <Icon className="size-4 shrink-0 opacity-85" />
-                              {item.label}
-                            </Link>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                )}
 
                 {siteGroups.length === 0 && (
                   <p className="px-3 py-2 text-sm text-fg-2">
