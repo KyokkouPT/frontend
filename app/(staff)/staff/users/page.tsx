@@ -3,9 +3,10 @@ import { redirect } from "next/navigation";
 import type { StaffUsersResponse } from "@kyokkou/contracts";
 import { getBootstrap } from "@/lib/bootstrap";
 import { ServerFetchError, serverFetch } from "@/lib/api/server";
+import { formatRatio } from "@/lib/format";
 import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
-import { UserActions } from "@/components/staff-actions";
+import { UserToolbox } from "@/components/user-toolbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/field";
@@ -14,6 +15,18 @@ import { Panel } from "@/components/ui/panel";
 export const dynamic = "force-dynamic";
 
 export const metadata = { title: "用户管理" };
+
+const STATUS_LABEL: Record<string, string> = {
+  active: "正常",
+  suspended: "停用",
+  banned: "封禁",
+};
+
+const ROLE_LABEL: Record<string, string> = {
+  user: "用户",
+  moderator: "版主",
+  admin: "管理员",
+};
 
 export default async function StaffUsersPage({
   searchParams,
@@ -55,11 +68,19 @@ export default async function StaffUsersPage({
     <>
       <PageHeader
         title="用户管理"
-        description="停用/封禁会立即撤销该用户的 session，并通知本人；恢复后需重新登录。"
+        description="停用/封禁会立即撤销该用户的 session；删除仅允许无关联数据的账号。"
+        actions={
+          <Link
+            href="/staff/users/new"
+            className="inline-flex h-10 items-center rounded-sm border border-accent bg-accent px-4 text-sm font-semibold text-accent-ink transition hover:brightness-110"
+          >
+            新建用户
+          </Link>
+        }
       />
 
-      <Panel title="搜索" flush>
-        <form className="flex flex-wrap items-center gap-2 p-3" action="/staff/users" method="get">
+      <Panel flush>
+        <form className="flex flex-wrap items-center gap-2 border-b border-line p-3" action="/staff/users" method="get">
           <Input name="q" defaultValue={query} placeholder="用户名或邮箱" className="h-9 max-w-xs" />
           <Button type="submit" variant="primary">
             搜索
@@ -70,31 +91,48 @@ export default async function StaffUsersPage({
             </Link>
           )}
         </form>
-      </Panel>
 
-      <div className="mt-4">
-        <Panel flush>
-          {data.items.length === 0 ? (
-            <p className="p-4 text-sm text-fg-2">没有匹配的用户。</p>
-          ) : (
-            <ul className="divide-y divide-line">
-              {data.items.map((user) => (
-                <li key={user.id} className="grid gap-2 p-4">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <b className="text-sm">{user.username}</b>
-                    <Badge tone={user.status === "active" ? "ok" : "warn"}>{user.status}</Badge>
-                    <span className="text-2xs text-fg-2">{user.email}</span>
-                    <span className="text-2xs text-fg-2">
-                      上传 {user.uploaded} · 下载 {user.downloaded} · 魔力 {user.bonus}
-                    </span>
-                  </div>
-                  <UserActions user={user} />
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
-      </div>
+        {data.items.length === 0 ? (
+          <p className="p-4 text-sm text-fg-2">没有匹配的用户。</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[860px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-line text-xs text-fg-2">
+                  <th className="px-4 py-2.5 font-medium">用户名</th>
+                  <th className="px-3 py-2.5 font-medium">权限组</th>
+                  <th className="px-3 py-2.5 font-medium">状态</th>
+                  <th className="px-3 py-2.5 font-medium">分享率</th>
+                  <th className="px-4 py-2.5 font-medium">工具箱</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.items.map((user) => (
+                  <tr key={user.id} className="border-b border-line/60 last:border-0">
+                    <td className="px-4 py-3">
+                      <b className="block text-sm font-semibold">{user.username}</b>
+                      <span className="block text-2xs text-fg-2">{user.email}</span>
+                    </td>
+                    <td className="px-3 py-3">
+                      <span className="text-sm">{ROLE_LABEL[user.role] ?? user.role}</span>
+                      <span className="ml-1 font-mono text-2xs text-fg-2">{user.class_key}</span>
+                    </td>
+                    <td className="px-3 py-3">
+                      <Badge tone={user.status === "active" ? "ok" : user.status === "suspended" ? "warn" : "danger"}>
+                        {STATUS_LABEL[user.status] ?? user.status}
+                      </Badge>
+                    </td>
+                    <td className="px-3 py-3 font-mono text-xs">{formatRatio(user.ratio)}</td>
+                    <td className="px-4 py-3">
+                      <UserToolbox user={user} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Panel>
     </>
   );
 }
