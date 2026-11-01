@@ -46,7 +46,13 @@ const components: Components = {
 /** 用户可见的管理员 Markdown 文案；默认不渲染原始 HTML。 */
 export function Markdown({ children, className }: { children: string; className?: string }) {
   return (
-    <div className={cn("break-words text-sm text-fg-1", className)}>
+    <div
+      className={cn(
+        "break-words text-sm text-fg-1",
+        "[&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
+        className,
+      )}
+    >
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
         {children}
       </ReactMarkdown>
