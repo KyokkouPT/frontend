@@ -168,10 +168,10 @@ export function ClassSimulator() {
 
             <div className="grid gap-2 rounded-sm border border-line bg-surface-2 p-3 sm:grid-cols-2 lg:grid-cols-3">
               <Metric label="注册天数" value={`${String(simulation.metrics.age_days)} 天`} />
-              <Metric label="上传" value={formatBytes(simulation.metrics.uploaded)} />
-              <Metric label="下载" value={formatBytes(simulation.metrics.downloaded)} />
-              <Metric label="实际上传" value={formatBytes(simulation.metrics.raw_uploaded)} />
-              <Metric label="实际下载" value={formatBytes(simulation.metrics.raw_downloaded)} />
+              <Metric label="上传量" value={formatBytes(simulation.metrics.uploaded)} />
+              <Metric label="实际上传量" value={formatBytes(simulation.metrics.raw_uploaded)} />
+              <Metric label="下载量" value={formatBytes(simulation.metrics.downloaded)} />
+              <Metric label="实际下载量" value={formatBytes(simulation.metrics.raw_downloaded)} />
               <Metric label="分享率" value={formatRatio(simulation.metrics.ratio)} />
               <Metric label="做种时长" value={`${simulation.metrics.seedtime_hours.toFixed(1)} 小时`} />
               <Metric label="魔力/做种积分" value={String(simulation.metrics.bonus)} />

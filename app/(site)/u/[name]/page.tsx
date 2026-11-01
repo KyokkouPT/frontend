@@ -48,17 +48,14 @@ export default async function UserPage({ params }: { params: Promise<{ name: str
         description={`${profile.class.name} · rank ${String(profile.class.rank)} · 加入于 ${formatDate(profile.joined_at)}`}
       />
 
-      <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
-        <StatCard label="上传" value={formatBytes(profile.uploaded)} />
-        <StatCard label="下载" value={formatBytes(profile.downloaded)} />
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
+        <StatCard label="上传量" value={formatBytes(profile.uploaded)} />
+        <StatCard label="实际上传量" value={formatBytes(profile.raw_uploaded)} />
+        <StatCard label="下载量" value={formatBytes(profile.downloaded)} />
+        <StatCard label="实际下载量" value={formatBytes(profile.raw_downloaded)} />
         <StatCard label="分享率" value={formatRatio(profile.ratio)} tone="accent" />
         <StatCard label="做种时长" value={formatDuration(profile.seedtime)} />
       </div>
-      <p className="mb-6 text-2xs text-fg-2">
-        实际 ↑ {formatBytes(profile.raw_uploaded)} / ↓ {formatBytes(profile.raw_downloaded)}
-        {profile.uploaded > profile.raw_uploaded && ` · 兑换上传 +${formatBytes(profile.uploaded - profile.raw_uploaded)}`}
-        {profile.raw_downloaded > profile.downloaded && ` · 减免下载 −${formatBytes(profile.raw_downloaded - profile.downloaded)}`}
-      </p>
 
       <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-3">
         <StatCard label="发布" value={formatNumber(profile.published_count)} />
