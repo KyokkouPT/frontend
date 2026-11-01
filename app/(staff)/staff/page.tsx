@@ -59,6 +59,9 @@ export default async function StaffPage() {
             ["审核台", "/staff/review"],
             ["举报", "/staff/reports"],
             ["用户管理", "/staff/users"],
+            ...(bootstrap.permissions.includes("staff.bonus_shop")
+              ? [["魔力值商店", "/staff/bonus"] as const]
+              : []),
             ["等级管理", "/staff/classes"],
             ["等级规则", "/staff/classes/rules"],
             ["升降模拟", "/staff/classes/simulate"],

@@ -218,7 +218,7 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
         </div>
       </Panel>
 
-      <Panel title="用户名规则" description="改名冷却、旧名保留和回退退款比例">
+      <Panel title="魔力值商店设置" description="用户名规则、送礼上限与 H&R 机会有效期">
         <div className="grid gap-3 sm:grid-cols-3">
           <Field label="改名冷却（天）" htmlFor="shop-cooldown">
             <Input
@@ -252,6 +252,39 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
               value={String(settings.shop.rename_refund_ratio)}
               onChange={(event) =>
                 patch("shop", { rename_refund_ratio: Number(event.target.value) })
+              }
+            />
+          </Field>
+          <Field label="单次送礼上限" htmlFor="shop-gift-max" hint="-1 表示不限">
+            <Input
+              id="shop-gift-max"
+              type="number"
+              min="-1"
+              value={String(settings.shop.gift_max_per_transaction)}
+              onChange={(event) =>
+                patch("shop", { gift_max_per_transaction: Number(event.target.value) })
+              }
+            />
+          </Field>
+          <Field label="送礼留言最大长度" htmlFor="shop-gift-message">
+            <Input
+              id="shop-gift-message"
+              type="number"
+              min="0"
+              value={String(settings.shop.gift_message_max_length)}
+              onChange={(event) =>
+                patch("shop", { gift_message_max_length: Number(event.target.value) })
+              }
+            />
+          </Field>
+          <Field label="H&R 机会有效期（天）" htmlFor="shop-hnr-expire" hint="-1 表示永久">
+            <Input
+              id="shop-hnr-expire"
+              type="number"
+              min="-1"
+              value={String(settings.shop.hnr_credit_expire_days)}
+              onChange={(event) =>
+                patch("shop", { hnr_credit_expire_days: Number(event.target.value) })
               }
             />
           </Field>

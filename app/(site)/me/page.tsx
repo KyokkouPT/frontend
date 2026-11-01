@@ -7,6 +7,7 @@ import { formatBonus, formatBytes, formatDate, formatDuration, formatNumber, for
 import { PageHeader } from "@/components/page-header";
 import { Notice } from "@/components/notice";
 import { RatioRing } from "@/components/ratio-ring";
+import { HnrClearButton } from "@/components/hnr-clear-button";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Panel } from "@/components/ui/panel";
@@ -103,7 +104,11 @@ export default async function MePage({
             <StatCard label="魔力值" value={formatBonus(user.bonus)} sub="当前余额" tone="accent" />
           </div>
 
-          <Panel title="H&R 义务" description="下载量达到策略阈值后会生成保种义务">
+          <Panel
+            title="H&R 义务"
+            description="下载量达到策略阈值后会生成保种义务；购买机会后可逐条清除"
+            right={<Badge tone={me.hnr_credits > 0 ? "accent" : "muted"}>清除机会 {me.hnr_credits}</Badge>}
+          >
             {me.hnr.length === 0 ? (
               <EmptyState
                 icon={<Timer className="size-5" />}
@@ -115,9 +120,24 @@ export default async function MePage({
                 {me.hnr.map((item) => (
                   <li key={item.id} className="flex flex-wrap items-center gap-2 text-sm">
                     <span className="min-w-0 truncate">{item.name}</span>
-                    <Badge tone={item.status === "unreached" ? "danger" : "warn"} className="ml-auto">
+                    <span className="text-2xs text-fg-2">
+                      {formatDuration(item.seeded_seconds)} / {formatDuration(item.required_seconds)}
+                    </span>
+                    <Badge
+                      tone={
+                        item.status === "unreached"
+                          ? "danger"
+                          : item.status === "cleared" || item.status === "reached"
+                            ? "ok"
+                            : "warn"
+                      }
+                      className="ml-auto"
+                    >
                       {item.status}
                     </Badge>
+                    {item.status === "unreached" && (
+                      <HnrClearButton obligationId={item.id} credits={me.hnr_credits} />
+                    )}
                   </li>
                 ))}
               </ul>

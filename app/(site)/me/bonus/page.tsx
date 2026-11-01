@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
-import type { BonusResponse } from "@kyokkou/contracts";
+import type { BonusResponse, RedemptionsResponse } from "@kyokkou/contracts";
 import { getBootstrap } from "@/lib/bootstrap";
 import { ServerFetchError, serverFetch } from "@/lib/api/server";
 import { PageHeader } from "@/components/page-header";
 import { Notice } from "@/components/notice";
-import { ExchangeList } from "@/components/bonus-exchange";
+import { BonusShop } from "@/components/bonus-shop";
+import { Badge } from "@/components/ui/badge";
 import { Panel } from "@/components/ui/panel";
 import { StatCard } from "@/components/ui/stat";
 import { formatBonus, formatDate, formatNumber, formatRelativeTime } from "@/lib/format";
@@ -13,13 +14,25 @@ export const dynamic = "force-dynamic";
 
 export const metadata = { title: "魔力值" };
 
+function paramSummary(type: string, params: Record<string, unknown>): string {
+  if (type === "gift_bonus") return `→ ${String(params.recipient ?? "")}${params.message ? `：${String(params.message)}` : ""}`;
+  if (type === "title_set") return String(params.title ?? "");
+  if (type === "username_change") return String(params.username ?? "");
+  if (typeof params.error === "string") return `${params.error}：${String(params.message ?? "")}`;
+  return "";
+}
+
 export default async function BonusPage() {
   const bootstrap = await getBootstrap();
   if (!bootstrap?.me) redirect("/login?next=/me/bonus");
 
   let bonus: BonusResponse;
+  let redemptions: RedemptionsResponse;
   try {
-    bonus = await serverFetch<BonusResponse>("/api/v1/me/bonus");
+    [bonus, redemptions] = await Promise.all([
+      serverFetch<BonusResponse>("/api/v1/me/bonus"),
+      serverFetch<RedemptionsResponse>("/api/v1/me/redemptions"),
+    ]);
   } catch (error) {
     const message =
       error instanceof ServerFetchError
@@ -41,7 +54,7 @@ export default async function BonusPage() {
       <PageHeader
         title="魔力值"
         count={formatBonus(bonus.balance)}
-        description="做种产出按时间结算，每次余额变化都会写入账本。"
+        description="商店由拥有 staff.bonus_shop 的管理员配置；每次余额变化都会写入账本。"
       />
 
       {frozen && (
@@ -58,13 +71,56 @@ export default async function BonusPage() {
           sub="按做种数与体积计算"
           tone={frozen ? "warn" : "default"}
         />
-        <StatCard label="兑换项" value={formatNumber(bonus.items.length)} sub="可用魔力值兑换" />
-        <StatCard label="账本记录" value={formatNumber(bonus.ledger.length)} sub="最近 20 条" />
+        <StatCard label="在售商品" value={formatNumber(bonus.items.length)} sub="兑换与回收" />
+        <StatCard label="兑换记录" value={formatNumber(redemptions.items.length)} sub="最近 50 条" />
       </div>
 
       <div className="grid gap-6">
-        <Panel title="兑换" description="扣余额、写账本；同一 Idempotency-Key 不会重复扣款">
-          <ExchangeList items={bonus.items} frozen={frozen} balance={bonus.balance} />
+        <Panel title="魔力值商店" description="余额不足或资源不足时按钮不可用；兑换成功后自动刷新。">
+          <BonusShop items={bonus.items} frozen={frozen} balance={bonus.balance} />
+        </Panel>
+
+        <Panel title="我的兑换记录" description="成功与失败都会保留；失败不扣资源" flush>
+          {redemptions.items.length === 0 ? (
+            <p className="p-4 text-sm text-fg-2">还没有兑换记录。</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[760px] text-left text-sm">
+                <thead>
+                  <tr className="border-b border-line text-xs text-fg-2">
+                    <th className="px-4 py-2.5 font-medium">时间</th>
+                    <th className="px-3 py-2.5 font-medium">商品</th>
+                    <th className="px-3 py-2.5 font-medium">类型</th>
+                    <th className="px-3 py-2.5 font-medium">参数</th>
+                    <th className="px-3 py-2.5 text-right font-medium">魔力</th>
+                    <th className="px-4 py-2.5 font-medium">状态</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {redemptions.items.map((entry) => (
+                    <tr key={entry.id} className="border-b border-line/60 last:border-0">
+                      <td className="px-4 py-2.5 text-xs text-fg-2">
+                        {formatRelativeTime(entry.created_at)}
+                      </td>
+                      <td className="px-3 py-2.5 font-mono text-xs">{entry.item_key ?? entry.item_id}</td>
+                      <td className="px-3 py-2.5 text-xs">{entry.type}</td>
+                      <td className="max-w-[280px] truncate px-3 py-2.5 text-xs text-fg-2">
+                        {paramSummary(entry.type, entry.params) || "—"}
+                      </td>
+                      <td className="px-3 py-2.5 text-right font-mono text-xs">
+                        {formatBonus(entry.price)}
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <Badge tone={entry.status === "failed" ? "danger" : "ok"}>
+                          {entry.status === "failed" ? "失败" : "完成"}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </Panel>
 
         <Panel title="魔力账本" description="每次余额变化都有记录" flush>

@@ -80,6 +80,7 @@ const PERMISSION_GROUPS: { label: string; items: { key: string; label: string }[
       { key: "staff.review", label: "审核台" },
       { key: "staff.reports", label: "举报处理" },
       { key: "staff.users", label: "用户管理/创建用户" },
+      { key: "staff.bonus_shop", label: "魔力值商店管理" },
       { key: "staff.anomalies", label: "反作弊" },
       { key: "staff.audit", label: "审计日志" },
       { key: "staff.settings", label: "站点设置/调度" },

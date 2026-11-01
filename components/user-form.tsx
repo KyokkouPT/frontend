@@ -25,6 +25,7 @@ const EDIT_FIELDS = {
   downloaded: "staff.user_edit.downloaded",
   invite: "staff.user_edit.invite_balance",
   warnings: "staff.user_edit.warnings",
+  customTitle: "staff.user_edit.custom_title",
 } as const;
 
 function toGbText(bytes: number): string {
@@ -60,6 +61,7 @@ export function UserForm({
   const [bonus, setBonus] = useState(user ? String(user.bonus) : "0");
   const [inviteBalance, setInviteBalance] = useState(user ? String(user.invite_balance) : "0");
   const [warnings, setWarnings] = useState(user ? String(user.warnings) : "0");
+  const [customTitle, setCustomTitle] = useState(user?.custom_title ?? "");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -108,6 +110,9 @@ export function UserForm({
         }
         if (can("warnings") && Number.isInteger(nextWarnings) && nextWarnings !== user.warnings) {
           payload.warnings = nextWarnings;
+        }
+        if (can("customTitle") && customTitle.trim() !== (user.custom_title ?? "")) {
+          payload.custom_title = customTitle.trim() || null;
         }
 
         await apiFetch(`/api/v1/staff/users/${String(user.id)}`, {
@@ -277,6 +282,17 @@ export function UserForm({
               min="0"
               value={warnings}
               onChange={(event) => setWarnings(event.target.value)}
+            />
+          </Field>
+        )}
+
+        {mode === "edit" && can("customTitle") && (
+          <Field label="自定义头衔" htmlFor="user-custom-title" hint="留空清除；不能含 emoji">
+            <Input
+              id="user-custom-title"
+              value={customTitle}
+              maxLength={64}
+              onChange={(event) => setCustomTitle(event.target.value)}
             />
           </Field>
         )}
