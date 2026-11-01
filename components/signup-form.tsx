@@ -7,6 +7,7 @@ import type { LoginResponse, SiteRegistration } from "@kyokkou/contracts";
 import { ApiClientError, apiPost } from "@/lib/api/client";
 import { Button } from "./ui/button";
 import { Field, Input } from "./ui/field";
+import { Markdown } from "./markdown";
 import { Notice } from "./notice";
 
 export function SignupForm({
@@ -44,7 +45,7 @@ export function SignupForm({
       return (
         <>
           <h1 className="text-2xl font-semibold tracking-[-0.02em]">注册</h1>
-          <p className="mt-1.5 text-sm text-fg-1">{registration.closed_message}</p>
+          <Markdown className="mt-1.5 text-sm">{registration.closed_message}</Markdown>
           <p className="mt-4 text-sm text-fg-2">
             已有账号？{" "}
             <Link href="/login" className="font-medium text-accent hover:underline">

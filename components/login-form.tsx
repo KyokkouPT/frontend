@@ -7,6 +7,7 @@ import type { LoginResponse, SiteRegistration } from "@kyokkou/contracts";
 import { ApiClientError, apiPost } from "@/lib/api/client";
 import { Button } from "./ui/button";
 import { Field, Input } from "./ui/field";
+import { Markdown } from "./markdown";
 
 /** 登录表单：真实调用 /api/v1/auth/login，失败展示 problem+json 文案。 */
 export function LoginForm({
@@ -149,18 +150,18 @@ export function LoginForm({
           {pending ? "登录中…" : "登录"}
         </Button>
 
-        <p className="text-center text-xs leading-relaxed text-fg-2">
-          {registration?.open || registration?.invite_registration_enabled ? (
-            <>
-              还没有账号？{" "}
-              <Link href="/signup" className="font-medium text-accent hover:underline">
-                使用邀请码注册
-              </Link>
-            </>
-          ) : (
-            (registration?.closed_message ?? "登录信息仅用于本站。")
-          )}
-        </p>
+        {registration?.open || registration?.invite_registration_enabled ? (
+          <p className="text-center text-xs leading-relaxed text-fg-2">
+            还没有账号？{" "}
+            <Link href="/signup" className="font-medium text-accent hover:underline">
+              使用邀请码注册
+            </Link>
+          </p>
+        ) : (
+          <Markdown className="text-center text-xs">
+            {registration?.closed_message ?? "登录信息仅用于本站。"}
+          </Markdown>
+        )}
       </form>
     </>
   );

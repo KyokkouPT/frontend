@@ -129,7 +129,7 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
             />
             生成邀请码时要求填写预注册用户名
           </label>
-          <Field label="关闭注册时的提示" htmlFor="registration-closed">
+          <Field label="关闭注册时的提示" htmlFor="registration-closed" hint="支持 Markdown：标题、列表、链接、引用、代码块、表格">
             <Textarea
               id="registration-closed"
               value={settings.registration.closed_message}
