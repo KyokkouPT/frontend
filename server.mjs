@@ -28,13 +28,23 @@ function isTracker(pathname) {
 
 function proxyTracker(req, res) {
   const requestFn = backend.protocol === "https:" ? httpsRequest : httpRequest;
+  const forwardedFor = req.headers["x-forwarded-for"];
+  const clientIp =
+    (typeof forwardedFor === "string" && forwardedFor.length > 0
+      ? forwardedFor
+      : req.socket.remoteAddress) ?? "";
   const upstream = requestFn(
     {
       hostname: backend.hostname,
       port: backend.port,
       path: req.url,
       method: "GET",
-      headers: { ...req.headers, host: backend.host },
+      headers: {
+        ...req.headers,
+        host: backend.host,
+        "x-forwarded-for": clientIp,
+        "x-forwarded-proto": req.socket.encrypted ? "https" : "http",
+      },
     },
     (upstreamRes) => {
       res.writeHead(upstreamRes.statusCode ?? 502, upstreamRes.headers);
