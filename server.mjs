@@ -11,7 +11,7 @@ import next from "next";
  * 这样前端只需要一条 Nginx location / → 31002，Tracker 也走同一条路径。
  */
 const dev = process.env.NODE_ENV !== "production";
-const hostname = process.env.HOSTNAME ?? "127.0.0.1";
+const hostname = process.env.FRONTEND_HOST ?? process.env.HOSTNAME ?? "127.0.0.1";
 const port = Number(process.env.PORT ?? 31002);
 const backend = new URL(
   process.env.BACKEND_API_ORIGIN ?? process.env.API_ORIGIN ?? "http://127.0.0.1:31001",

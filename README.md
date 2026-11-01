@@ -67,7 +67,7 @@ UI 来自仓库外层的 `web/` v0 原型，**不复制 fixture 进本仓库**�
 
 ```bash
 pnpm install
-pnpm dev            # node --watch server.mjs，http://127.0.0.1:31002
+pnpm dev            # node --watch --env-file-if-exists=.env server.mjs，默认 http://127.0.0.1:31002
 
 # 生产
 pnpm build
@@ -91,6 +91,7 @@ $env:NODE_ENV="production"; pnpm start
 | --- | --- | --- |
 | `API_ORIGIN` | `http://127.0.0.1:31001` | rewrites 的后端地址 |
 | `BACKEND_API_ORIGIN` | 同 `API_ORIGIN` | 服务端 RSC `serverFetch` 的后端地址 |
+| `FRONTEND_HOST` | `127.0.0.1` | `server.mjs` 监听地址；内网可设为具体网卡 IP 或 `0.0.0.0` |
 | `BACKEND_SECRET` | 空 | 仅生产：作为 `X-Kyou-Secret` 发给后端 Nginx。**不要加 `NEXT_PUBLIC_`，不要进客户端组件** |
 
 ## `X-Kyou-Secret` 规则
