@@ -10,6 +10,7 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { EmptyState } from "./ui/empty-state";
 import { Field, Select, Textarea } from "./ui/field";
+import { Markdown } from "./markdown";
 import { Notice } from "./notice";
 import { Panel } from "./ui/panel";
 
@@ -119,9 +120,9 @@ export function ReviewQueue({
               )}
 
               {selected.description && (
-                <p className="mt-3 border-t border-line pt-3 text-sm leading-relaxed whitespace-pre-wrap">
-                  {selected.description}
-                </p>
+                <div className="mt-3 border-t border-line pt-3">
+                  <Markdown className="text-sm">{selected.description}</Markdown>
+                </div>
               )}
 
               {selected.files.length > 0 && (

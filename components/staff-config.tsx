@@ -82,6 +82,20 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
             />
             允许未登录用户访问站点页面
           </label>
+          <Field
+            label="站点规则 / FAQ / 版规（Markdown）"
+            htmlFor="site-rules-markdown"
+            className="sm:col-span-2"
+            hint="显示在 /rules 页面顶部；支持标题、列表、链接、引用、代码块、表格"
+          >
+            <Textarea
+              id="site-rules-markdown"
+              value={settings.site.rules_markdown}
+              rows={10}
+              maxLength={20000}
+              onChange={(event) => patch("site", { rules_markdown: event.target.value })}
+            />
+          </Field>
         </div>
       </Panel>
 

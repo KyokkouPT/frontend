@@ -10,6 +10,7 @@ import { cn } from "@/lib/cn";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { EmptyState } from "./ui/empty-state";
+import { Markdown } from "./markdown";
 import { Notice } from "./notice";
 
 export function NotificationsList({ initial }: { initial: NotificationsResponse }) {
@@ -75,7 +76,7 @@ export function NotificationsList({ initial }: { initial: NotificationsResponse 
                 {item.read_at === null && <Badge tone="accent">未读</Badge>}
                 <span className="ml-auto text-2xs text-fg-2">{formatRelativeTime(item.created_at)}</span>
               </div>
-              <p className="mt-1 text-xs leading-relaxed text-fg-1">{item.body}</p>
+              <Markdown className="mt-1 text-xs">{item.body}</Markdown>
               <div className="mt-2 flex items-center gap-3 text-xs">
                 {item.link_url && (
                   <Link href={item.link_url} className="text-accent hover:underline">

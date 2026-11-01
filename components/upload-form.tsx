@@ -162,12 +162,12 @@ export function UploadForm({ sections }: { sections: Section[] }) {
             </label>
           </Field>
 
-          <Field label="描述" htmlFor="upload-description" className="sm:col-span-2">
+          <Field label="描述" htmlFor="upload-description" className="sm:col-span-2" hint="支持 Markdown">
             <Textarea
               id="upload-description"
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              placeholder="规格、来源、字幕、修复说明等"
+              placeholder="规格、来源、字幕、修复说明等；支持 Markdown"
             />
           </Field>
         </div>

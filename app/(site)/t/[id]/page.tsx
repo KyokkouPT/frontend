@@ -11,6 +11,7 @@ import { PromoBadge } from "@/components/promo-badge";
 import { ZeroBonusBadge } from "@/components/zero-bonus-badge";
 import { ZeroBonusToggle } from "@/components/zero-bonus-toggle";
 import { TorrentRow } from "@/components/torrent-row";
+import { Markdown } from "@/components/markdown";
 import { Badge } from "@/components/ui/badge";
 import { Panel } from "@/components/ui/panel";
 
@@ -80,7 +81,7 @@ export default async function TorrentDetailPage({
         <div className="grid min-w-0 gap-6">
           <Panel title="描述">
             {detail.description ? (
-              <p className="text-sm leading-relaxed whitespace-pre-wrap">{detail.description}</p>
+              <Markdown>{detail.description}</Markdown>
             ) : (
               <p className="text-sm text-fg-2">发布者没有填写描述。</p>
             )}

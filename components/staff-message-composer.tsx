@@ -146,7 +146,7 @@ export function StaffMessageComposer({ classes }: { classes: StaffMessageOptions
               onChange={(event) => setTitle(event.target.value)}
             />
           </Field>
-          <Field label="正文" htmlFor="message-body" required hint="纯文本，最多 5000 字">
+          <Field label="正文" htmlFor="message-body" required hint="支持 Markdown，最多 5000 字">
             <Textarea
               id="message-body"
               value={body}

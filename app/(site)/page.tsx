@@ -27,6 +27,7 @@ import { Panel } from "@/components/ui/panel";
 import { StatCard } from "@/components/ui/stat";
 import { TorrentRow } from "@/components/torrent-row";
 import { PromoBadge } from "@/components/promo-badge";
+import { Markdown } from "@/components/markdown";
 import { Notice } from "@/components/notice";
 
 export const dynamic = "force-dynamic";
@@ -182,7 +183,7 @@ export default async function HomePage() {
                             {item.author ?? "管理员"} · {formatRelativeTime(item.created_at)}
                           </span>
                         </div>
-                        <p className="line-clamp-2 text-xs leading-relaxed text-fg-1">{item.body}</p>
+                        <Markdown className="text-xs text-fg-1">{item.body}</Markdown>
                       </li>
                     ))}
                   </ul>

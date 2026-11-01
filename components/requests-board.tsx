@@ -10,6 +10,7 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { EmptyState } from "./ui/empty-state";
 import { Field, Input, Textarea } from "./ui/field";
+import { Markdown } from "./markdown";
 import { Notice } from "./notice";
 import { Panel } from "./ui/panel";
 
@@ -141,12 +142,12 @@ export function RequestsBoard({
                 placeholder="例如：求 4K 原盘《沙丘 2》国配版"
               />
             </Field>
-            <Field label="说明" htmlFor="request-description">
+            <Field label="说明" htmlFor="request-description" hint="支持 Markdown">
               <Textarea
                 id="request-description"
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
-                placeholder="规格、字幕、来源等要求"
+                placeholder="规格、字幕、来源等要求；支持 Markdown"
               />
             </Field>
             <Field label="悬赏（魔力值）" htmlFor="request-bounty" required>
@@ -213,7 +214,7 @@ export function RequestsBoard({
                 </div>
 
                 {item.description && (
-                  <p className="text-xs leading-relaxed text-fg-1">{item.description}</p>
+                  <Markdown className="text-xs">{item.description}</Markdown>
                 )}
 
                 {(meUsername === item.user.name && item.status === "open") ||

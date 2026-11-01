@@ -3,6 +3,7 @@ import { ServerFetchError, serverFetch } from "@/lib/api/server";
 import { PageHeader } from "@/components/page-header";
 import { Notice } from "@/components/notice";
 import { Badge } from "@/components/ui/badge";
+import { Markdown } from "@/components/markdown";
 import { Panel } from "@/components/ui/panel";
 import { formatDuration, formatNumber } from "@/lib/format";
 
@@ -36,6 +37,16 @@ export default async function RulesPage() {
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
+        {rules.content.trim() && (
+          <Panel
+            title="站点规则 / FAQ / 版规"
+            description="由站点管理员维护"
+            className="lg:col-span-2"
+          >
+            <Markdown>{rules.content}</Markdown>
+          </Panel>
+        )}
+
         <Panel title="注册">
           <dl className="grid gap-2.5 text-sm">
             <Row label="开放注册" value={rules.registration.open ? "是" : "否"} />
