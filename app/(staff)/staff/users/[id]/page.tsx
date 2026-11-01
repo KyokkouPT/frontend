@@ -62,7 +62,7 @@ export default async function EditUserPage({
           查看该用户的等级历史 →
         </Link>
       </p>
-      <UserForm mode="edit" user={user} classes={classes} />
+      <UserForm mode="edit" user={user} classes={classes} permissions={bootstrap.permissions} />
     </>
   );
 }

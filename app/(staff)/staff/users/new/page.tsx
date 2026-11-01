@@ -32,7 +32,7 @@ export default async function NewUserPage() {
   return (
     <>
       <PageHeader title="新建用户" description="创建后可直接用该用户名与密码登录。" />
-      <UserForm mode="create" classes={classes} />
+      <UserForm mode="create" classes={classes} permissions={bootstrap.permissions} />
     </>
   );
 }

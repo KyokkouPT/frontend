@@ -80,14 +80,16 @@ export function SignupForm({
       </p>
 
       <form onSubmit={onSubmit} className="mt-6 grid gap-4" noValidate>
-        <Field label="用户名" htmlFor="signup-username" required>
+        <Field label="用户名" htmlFor="signup-username" required hint="3–32 位，小写字母/数字/下划线/连字符">
           <Input
             id="signup-username"
             name="username"
             autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
             required
-            minLength={2}
-            maxLength={64}
+            minLength={3}
+            maxLength={32}
             value={username}
             onChange={(event) => setUsername(event.target.value)}
           />

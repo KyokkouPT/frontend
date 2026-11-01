@@ -83,15 +83,17 @@ export function SetupWizard() {
       <div className="border-t border-line pt-4">
         <p className="mb-3 text-sm font-semibold">第一个管理员账号</p>
         <div className="grid gap-3">
-          <Field label="用户名" htmlFor="setup-admin-username" required>
+          <Field label="用户名" htmlFor="setup-admin-username" required hint="3–32 位小写；setup 允许使用 admin">
             <Input
               id="setup-admin-username"
               autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
               value={adminUsername}
               onChange={(event) => setAdminUsername(event.target.value)}
               required
-              minLength={2}
-              maxLength={64}
+              minLength={3}
+              maxLength={32}
             />
           </Field>
 

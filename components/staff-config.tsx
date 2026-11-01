@@ -218,6 +218,46 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
         </div>
       </Panel>
 
+      <Panel title="用户名规则" description="改名冷却、旧名保留和回退退款比例">
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Field label="改名冷却（天）" htmlFor="shop-cooldown">
+            <Input
+              id="shop-cooldown"
+              type="number"
+              min="0"
+              value={String(settings.shop.rename_cooldown_days)}
+              onChange={(event) =>
+                patch("shop", { rename_cooldown_days: Number(event.target.value) })
+              }
+            />
+          </Field>
+          <Field label="旧名保留（天）" htmlFor="shop-reserve">
+            <Input
+              id="shop-reserve"
+              type="number"
+              min="0"
+              value={String(settings.shop.username_reserve_days)}
+              onChange={(event) =>
+                patch("shop", { username_reserve_days: Number(event.target.value) })
+              }
+            />
+          </Field>
+          <Field label="回退退款比例" htmlFor="shop-refund" hint="0–1，默认 1 全额">
+            <Input
+              id="shop-refund"
+              type="number"
+              min="0"
+              max="1"
+              step="0.01"
+              value={String(settings.shop.rename_refund_ratio)}
+              onChange={(event) =>
+                patch("shop", { rename_refund_ratio: Number(event.target.value) })
+              }
+            />
+          </Field>
+        </div>
+      </Panel>
+
       <div>
         <Button variant="primary" onClick={() => void save()} disabled={pending}>
           {pending ? "保存中…" : "保存全部设置"}
