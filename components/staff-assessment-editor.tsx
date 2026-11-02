@@ -6,6 +6,7 @@ import type {
   AssessmentRequirementItem,
   StaffAssessmentBody,
   StaffAssessmentItem,
+  StaffAssessmentParticipant,
 } from "@kyokkou/contracts";
 import { ApiClientError, apiFetch, apiPost } from "@/lib/api/client";
 import { Button } from "./ui/button";
@@ -76,6 +77,7 @@ export function StaffAssessmentEditor({
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [assignIds, setAssignIds] = useState<Record<number, string>>({});
+  const [participants, setParticipants] = useState<Record<number, StaffAssessmentParticipant[]>>({});
 
   function patchRow(id: number, patch: Partial<RequirementRow>): void {
     setRows((previous) => previous.map((row) => (row.id === id ? { ...row, ...patch } : row)));
@@ -255,6 +257,21 @@ export function StaffAssessmentEditor({
       router.refresh();
     } catch (caught) {
       setError(caught instanceof ApiClientError ? caught.message : "结算失败");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function loadParticipants(item: StaffAssessmentItem): Promise<void> {
+    setPending(true);
+    setError(null);
+    try {
+      const result = await apiFetch<{ items: StaffAssessmentParticipant[] }>(
+        `/api/v1/staff/assessments/${String(item.id)}/participants`,
+      );
+      setParticipants((previous) => ({ ...previous, [item.id]: result.items }));
+    } catch (caught) {
+      setError(caught instanceof ApiClientError ? caught.message : "参与列表加载失败");
     } finally {
       setPending(false);
     }
@@ -569,7 +586,44 @@ export function StaffAssessmentEditor({
                   <Button variant="ghost" onClick={() => void checkout(item)} disabled={pending}>
                     强制结算
                   </Button>
+                  <Button variant="ghost" onClick={() => void loadParticipants(item)} disabled={pending}>
+                    参与列表
+                  </Button>
                 </div>
+                {participants[item.id] && (
+                  <div className="mt-3 overflow-x-auto border-t border-line pt-3">
+                    {participants[item.id].length === 0 ? (
+                      <p className="text-xs text-fg-2">暂无参与记录。</p>
+                    ) : (
+                      <table className="w-full min-w-[720px] text-left text-xs">
+                        <thead>
+                          <tr className="border-b border-line text-fg-2">
+                            <th className="py-1.5 pr-3 font-medium">用户</th>
+                            <th className="px-3 py-1.5 font-medium">状态</th>
+                            <th className="px-3 py-1.5 font-medium">进度</th>
+                            <th className="px-3 py-1.5 font-medium">结果</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {participants[item.id].map((participant) => (
+                            <tr key={participant.assignment_id} className="border-b border-line/50 last:border-0">
+                              <td className="py-1.5 pr-3 font-medium">{participant.username}</td>
+                              <td className="px-3 py-1.5">{participant.status}</td>
+                              <td className="px-3 py-1.5">
+                                {participant.progress
+                                  .map((progress) => `${progress.label}: ${progress.current}/${progress.target}`)
+                                  .join(" · ") || "—"}
+                              </td>
+                              <td className="px-3 py-1.5 text-fg-2">
+                                {participant.result_reason ?? "—"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>
