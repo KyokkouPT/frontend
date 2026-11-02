@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import type {
   BonusFormulaPreviewResponse,
   BonusFormulaTorrentTerm,
-  StaffSettingsResponse,
 } from "@kyokkou/contracts";
 import { ApiClientError, apiFetch } from "@/lib/api/client";
 import { Button } from "./ui/button";
@@ -44,6 +43,7 @@ function formatNumber(value: number): string {
 export function BonusFormulaPanel({
   initial,
   kind = "bonus",
+  savePath = "/api/v1/staff/settings",
 }: {
   initial: {
     cron?: string;
@@ -52,6 +52,7 @@ export function BonusFormulaPanel({
     default_formula?: string;
   };
   kind?: "bonus" | "seed_points";
+  savePath?: string;
 }) {
   const isSeedPoints = kind === "seed_points";
   const router = useRouter();
@@ -106,13 +107,15 @@ export function BonusFormulaPanel({
     setError(null);
     setMessage(null);
     try {
-      const response = await apiFetch<StaffSettingsResponse>("/api/v1/staff/settings", {
+      const response = await apiFetch<{
+        settings: { bonus?: { next_run_at?: number | null } };
+      }>(savePath, {
         method: "PUT",
         body: JSON.stringify(
           isSeedPoints ? { seed_points: { formula } } : { bonus: { cron: cron.trim(), formula } },
         ),
       });
-      if (!isSeedPoints) setNextRun(response.settings.bonus.next_run_at ?? null);
+      if (!isSeedPoints) setNextRun(response.settings.bonus?.next_run_at ?? null);
       setMessage(isSeedPoints ? "做种积分公式已保存" : "魔力值调度与公式已保存");
       router.refresh();
     } catch (caught) {

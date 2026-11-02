@@ -6,7 +6,6 @@ import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
 import { SettingsEditor } from "@/components/staff-config";
 import { ClassSchedulerPanel } from "@/components/class-scheduler-panel";
-import { BonusFormulaPanel } from "@/components/bonus-formula-editor";
 import { Panel } from "@/components/ui/panel";
 
 export const dynamic = "force-dynamic";
@@ -49,8 +48,6 @@ export default async function StaffSettingsPage() {
       />
       <SettingsEditor initial={data.settings} />
       <div className="mt-6 grid gap-6">
-        <BonusFormulaPanel initial={data.settings.bonus} />
-        <BonusFormulaPanel initial={data.settings.seed_points} kind="seed_points" />
         <ClassSchedulerPanel initial={data.settings.classes} />
       </div>
     </>

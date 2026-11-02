@@ -31,7 +31,12 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
     try {
       const result = await apiFetch<StaffSettingsResponse>("/api/v1/staff/settings", {
         method: "PUT",
-        body: JSON.stringify(settings),
+        body: JSON.stringify({
+          site: settings.site,
+          registration: settings.registration,
+          tracker: settings.tracker,
+          review: settings.review,
+        }),
       });
       setSettings(result.settings);
       setMessage("设置已保存");
@@ -205,49 +210,6 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
         </div>
       </Panel>
 
-      <Panel title="经济">
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={settings.economy.bonus_enabled}
-              onChange={(event) => patch("economy", { bonus_enabled: event.target.checked })}
-              className="size-[15px] accent-accent"
-            />
-            启用魔力值
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={settings.economy.exchange_enabled}
-              onChange={(event) => patch("economy", { exchange_enabled: event.target.checked })}
-              className="size-[15px] accent-accent"
-            />
-            启用兑换
-          </label>
-          <Field label="求种悬赏下限" htmlFor="economy-min">
-            <Input
-              id="economy-min"
-              type="number"
-              value={String(settings.economy.request_min_bounty)}
-              onChange={(event) =>
-                patch("economy", { request_min_bounty: Number(event.target.value) })
-              }
-            />
-          </Field>
-          <Field label="求种悬赏上限" htmlFor="economy-max">
-            <Input
-              id="economy-max"
-              type="number"
-              value={String(settings.economy.request_max_bounty)}
-              onChange={(event) =>
-                patch("economy", { request_max_bounty: Number(event.target.value) })
-              }
-            />
-          </Field>
-        </div>
-      </Panel>
-
       <Panel title="审核">
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="flex items-center gap-2 text-sm">
@@ -278,79 +240,6 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
               value={String(settings.review.pending_alert_hours)}
               onChange={(event) =>
                 patch("review", { pending_alert_hours: Number(event.target.value) })
-              }
-            />
-          </Field>
-        </div>
-      </Panel>
-
-      <Panel title="魔力值商店设置" description="用户名规则、送礼上限与 H&R 机会有效期">
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Field label="改名冷却（天）" htmlFor="shop-cooldown">
-            <Input
-              id="shop-cooldown"
-              type="number"
-              min="0"
-              value={String(settings.shop.rename_cooldown_days)}
-              onChange={(event) =>
-                patch("shop", { rename_cooldown_days: Number(event.target.value) })
-              }
-            />
-          </Field>
-          <Field label="旧名保留（天）" htmlFor="shop-reserve">
-            <Input
-              id="shop-reserve"
-              type="number"
-              min="0"
-              value={String(settings.shop.username_reserve_days)}
-              onChange={(event) =>
-                patch("shop", { username_reserve_days: Number(event.target.value) })
-              }
-            />
-          </Field>
-          <Field label="回退退款比例" htmlFor="shop-refund" hint="0–1，默认 1 全额">
-            <Input
-              id="shop-refund"
-              type="number"
-              min="0"
-              max="1"
-              step="0.01"
-              value={String(settings.shop.rename_refund_ratio)}
-              onChange={(event) =>
-                patch("shop", { rename_refund_ratio: Number(event.target.value) })
-              }
-            />
-          </Field>
-          <Field label="单次送礼上限" htmlFor="shop-gift-max" hint="-1 表示不限">
-            <Input
-              id="shop-gift-max"
-              type="number"
-              min="-1"
-              value={String(settings.shop.gift_max_per_transaction)}
-              onChange={(event) =>
-                patch("shop", { gift_max_per_transaction: Number(event.target.value) })
-              }
-            />
-          </Field>
-          <Field label="送礼留言最大长度" htmlFor="shop-gift-message">
-            <Input
-              id="shop-gift-message"
-              type="number"
-              min="0"
-              value={String(settings.shop.gift_message_max_length)}
-              onChange={(event) =>
-                patch("shop", { gift_message_max_length: Number(event.target.value) })
-              }
-            />
-          </Field>
-          <Field label="H&R 机会有效期（天）" htmlFor="shop-hnr-expire" hint="-1 表示永久">
-            <Input
-              id="shop-hnr-expire"
-              type="number"
-              min="-1"
-              value={String(settings.shop.hnr_credit_expire_days)}
-              onChange={(event) =>
-                patch("shop", { hnr_credit_expire_days: Number(event.target.value) })
               }
             />
           </Field>
