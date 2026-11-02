@@ -63,7 +63,13 @@ export function StaffAssessmentEditor({
   const [durationDays, setDurationDays] = useState(30);
   const [maxParticipants, setMaxParticipants] = useState(0);
   const [allowConcurrent, setAllowConcurrent] = useState(true);
+  const [autoAssign, setAutoAssign] = useState(false);
+  const [priority, setPriority] = useState(0);
   const [classSlugs, setClassSlugs] = useState<string[]>([]);
+  const [filterRegisterMin, setFilterRegisterMin] = useState("");
+  const [filterRegisterMax, setFilterRegisterMax] = useState("");
+  const [filterLastActiveDays, setFilterLastActiveDays] = useState("");
+  const [filterUserIds, setFilterUserIds] = useState("");
   const [rows, setRows] = useState<RequirementRow[]>([{ ...EMPTY_REQUIREMENT, id: 1 }]);
   const [rewardBonus, setRewardBonus] = useState(1000);
   const [rewardInvite, setRewardInvite] = useState(0);
@@ -93,6 +99,17 @@ export function StaffAssessmentEditor({
   }
 
   function buildBody(): StaffAssessmentBody {
+    const userIds = filterUserIds
+      .split(/[\s,;，；]+/)
+      .map(Number)
+      .filter((value) => Number.isInteger(value) && value > 0);
+    const registerDays =
+      filterRegisterMin || filterRegisterMax
+        ? {
+            ...(filterRegisterMin ? { min: Number(filterRegisterMin) } : {}),
+            ...(filterRegisterMax ? { max: Number(filterRegisterMax) } : {}),
+          }
+        : undefined;
     return {
       name: name.trim(),
       description_markdown: description.trim() || null,
@@ -102,7 +119,14 @@ export function StaffAssessmentEditor({
       end_at: null,
       duration_days: durationDays,
       recurring: "none",
-      filters: { class_slugs: classSlugs },
+      filters: {
+        ...(classSlugs.length > 0 ? { class_slugs: classSlugs } : {}),
+        ...(registerDays ? { register_days: registerDays } : {}),
+        ...(filterLastActiveDays
+          ? { last_active_days: Number(filterLastActiveDays) }
+          : {}),
+        ...(userIds.length > 0 ? { user_ids: userIds } : {}),
+      },
       requirements: {
         logic: "all",
         items: rows.map((row) => ({
@@ -131,6 +155,8 @@ export function StaffAssessmentEditor({
       max_participants: maxParticipants,
       allow_concurrent: allowConcurrent,
       settle_early: true,
+      auto_assign: autoAssign,
+      priority,
     };
   }
 
@@ -184,6 +210,14 @@ export function StaffAssessmentEditor({
     setDurationDays(item.duration_days);
     setMaxParticipants(item.max_participants);
     setAllowConcurrent(item.allow_concurrent);
+    setAutoAssign(item.auto_assign);
+    setPriority(item.priority);
+    setFilterRegisterMin(item.filters.register_days?.min ? String(item.filters.register_days.min) : "");
+    setFilterRegisterMax(item.filters.register_days?.max ? String(item.filters.register_days.max) : "");
+    setFilterLastActiveDays(
+      item.filters.last_active_days ? String(item.filters.last_active_days) : "",
+    );
+    setFilterUserIds((item.filters.user_ids ?? []).join(", "));
     setClassSlugs(item.filters.class_slugs ?? []);
     setRows(
       item.requirements.items.map((requirement, index) => ({
@@ -352,6 +386,25 @@ export function StaffAssessmentEditor({
               />
               允许同一模板重复参与
             </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={autoAssign}
+                onChange={(event) => setAutoAssign(event.target.checked)}
+                className="size-[15px] accent-accent"
+              />
+              自动发现（仅考核，每分钟扫描新用户）
+            </label>
+            <Field label="自动分配优先级" htmlFor="assessment-priority" hint="越大越优先">
+              <Input
+                id="assessment-priority"
+                type="number"
+                min={0}
+                max={10000}
+                value={priority}
+                onChange={(event) => setPriority(Number(event.target.value))}
+              />
+            </Field>
           </div>
           <Field label="说明（Markdown）" htmlFor="assessment-description">
             <Textarea
@@ -449,6 +502,47 @@ export function StaffAssessmentEditor({
                 </label>
               ))}
             </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <Field label="注册天数下限" htmlFor="filter-register-min">
+              <Input
+                id="filter-register-min"
+                type="number"
+                min={0}
+                value={filterRegisterMin}
+                onChange={(event) => setFilterRegisterMin(event.target.value)}
+                placeholder="不限"
+              />
+            </Field>
+            <Field label="注册天数上限" htmlFor="filter-register-max">
+              <Input
+                id="filter-register-max"
+                type="number"
+                min={0}
+                value={filterRegisterMax}
+                onChange={(event) => setFilterRegisterMax(event.target.value)}
+                placeholder="不限"
+              />
+            </Field>
+            <Field label="最近活跃天数上限" htmlFor="filter-active">
+              <Input
+                id="filter-active"
+                type="number"
+                min={0}
+                value={filterLastActiveDays}
+                onChange={(event) => setFilterLastActiveDays(event.target.value)}
+                placeholder="不限"
+              />
+            </Field>
+            <Field label="指定用户 ID" htmlFor="filter-users" hint="逗号/空格分隔；与其他筛选取交集">
+              <Input
+                id="filter-users"
+                value={filterUserIds}
+                onChange={(event) => setFilterUserIds(event.target.value)}
+                placeholder="1, 2, 3"
+              />
+            </Field>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
