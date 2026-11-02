@@ -7,7 +7,7 @@ import type {
   StaffAssessmentBody,
   StaffAssessmentItem,
 } from "@kyokkou/contracts";
-import { ApiClientError, apiPost } from "@/lib/api/client";
+import { ApiClientError, apiFetch, apiPost } from "@/lib/api/client";
 import { Button } from "./ui/button";
 import { Field, Input, Select, Textarea } from "./ui/field";
 import { Markdown } from "./markdown";
@@ -57,7 +57,8 @@ export function StaffAssessmentEditor({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<"exam" | "task">("task");
-  const [status, setStatus] = useState<"draft" | "active">("active");
+  const [status, setStatus] = useState<StaffAssessmentItem["status"]>("active");
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [durationDays, setDurationDays] = useState(30);
   const [classSlugs, setClassSlugs] = useState<string[]>([]);
   const [rows, setRows] = useState<RequirementRow[]>([{ ...EMPTY_REQUIREMENT, id: 1 }]);
@@ -141,7 +142,7 @@ export function StaffAssessmentEditor({
     }
     if (
       (body.penalty.ban || body.penalty.suspend_days > 0 || body.penalty.class_slug) &&
-      !window.confirm("该考核包含封禁、停用或降级处罚，确认创建？")
+      !window.confirm("该考核包含封禁、停用或降级处罚，确认保存？")
     ) {
       return;
     }
@@ -149,17 +150,59 @@ export function StaffAssessmentEditor({
     setError(null);
     setMessage(null);
     try {
-      const created = await apiPost<StaffAssessmentItem>("/api/v1/staff/assessments", body);
-      setItems((previous) => [created, ...previous]);
+      const saved = editingId
+        ? await apiFetch<StaffAssessmentItem>(`/api/v1/staff/assessments/${String(editingId)}`, {
+            method: "PUT",
+            body: JSON.stringify(body),
+          })
+        : await apiPost<StaffAssessmentItem>("/api/v1/staff/assessments", body);
+      setItems((previous) =>
+        editingId ? previous.map((item) => (item.id === editingId ? saved : item)) : [saved, ...previous],
+      );
+      setEditingId(null);
       setName("");
       setDescription("");
-      setMessage("考核/任务已创建");
+      setMessage(editingId ? "考核/任务已保存" : "考核/任务已创建");
       router.refresh();
     } catch (caught) {
-      setError(caught instanceof ApiClientError ? caught.message : "创建失败，请稍后重试");
+      setError(caught instanceof ApiClientError ? caught.message : "保存失败，请稍后重试");
     } finally {
       setPending(false);
     }
+  }
+
+  function edit(item: StaffAssessmentItem): void {
+    setEditingId(item.id);
+    setName(item.name);
+    setDescription(item.description_markdown ?? "");
+    setType(item.type);
+    setStatus(item.status);
+    setDurationDays(item.duration_days);
+    setClassSlugs(item.filters.class_slugs ?? []);
+    setRows(
+      item.requirements.items.map((requirement, index) => ({
+        id: index + 1,
+        metric: requirement.metric,
+        op: requirement.op,
+        value: requirement.value,
+        unit:
+          requirement.metric === "uploaded_delta" || requirement.metric === "downloaded_delta"
+            ? "GB"
+            : undefined,
+      })),
+    );
+    setRewardBonus(item.reward.bonus);
+    setRewardInvite(item.reward.invite);
+    setRewardClass(item.reward.class_slug ?? "");
+    setRewardTitle(item.reward.custom_title ?? "");
+    setPenaltyBonus(item.penalty.bonus);
+    setPenaltyInvite(item.penalty.invite);
+    setPenaltyWarn(item.penalty.warn);
+    setPenaltyClass(item.penalty.class_slug ?? "");
+    setPenaltySuspend(item.penalty.suspend_days);
+    setPenaltyBan(item.penalty.ban);
+    setError(null);
+    setMessage(`正在编辑「${item.name}」`);
   }
 
   async function preview(): Promise<void> {
@@ -222,7 +265,10 @@ export function StaffAssessmentEditor({
       {error && <Notice tone="warn">{error}</Notice>}
       {message && <Notice tone="info">{message}</Notice>}
 
-      <Panel title="新建考核 / 任务" description="第一版为手动分配/领取，周期功能后续开放">
+      <Panel
+        title={editingId ? "编辑考核 / 任务" : "新建考核 / 任务"}
+        description="第一版为手动分配/领取，周期功能后续开放"
+      >
         <div className="grid gap-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="名称" htmlFor="assessment-name" required>
@@ -247,10 +293,14 @@ export function StaffAssessmentEditor({
               <Select
                 id="assessment-status"
                 value={status}
-                onChange={(event) => setStatus(event.target.value === "draft" ? "draft" : "active")}
+                onChange={(event) =>
+                  setStatus(event.target.value as StaffAssessmentItem["status"])
+                }
               >
                 <option value="active">启用</option>
                 <option value="draft">草稿</option>
+                <option value="paused">暂停</option>
+                <option value="archived">归档</option>
               </Select>
             </Field>
             <Field label="领取后有效天数" htmlFor="assessment-duration">
@@ -462,8 +512,21 @@ export function StaffAssessmentEditor({
               预览匹配人数
             </Button>
             <Button variant="primary" onClick={() => void save()} disabled={pending}>
-              {pending ? "处理中…" : "创建考核 / 任务"}
+              {pending ? "处理中…" : editingId ? "保存修改" : "创建考核 / 任务"}
             </Button>
+            {editingId && (
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setEditingId(null);
+                  setName("");
+                  setDescription("");
+                  setMessage(null);
+                }}
+              >
+                取消编辑
+              </Button>
+            )}
           </div>
         </div>
       </Panel>
@@ -499,6 +562,9 @@ export function StaffAssessmentEditor({
                   />
                   <Button variant="default" onClick={() => void assign(item)} disabled={pending}>
                     分配
+                  </Button>
+                  <Button variant="ghost" onClick={() => edit(item)} disabled={pending}>
+                    编辑
                   </Button>
                   <Button variant="ghost" onClick={() => void checkout(item)} disabled={pending}>
                     强制结算
