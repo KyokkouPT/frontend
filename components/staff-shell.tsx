@@ -18,7 +18,8 @@ import { useBootstrap } from "./providers/bootstrap-provider";
 export function StaffShell({ children }: { children: ReactNode }) {
   const bootstrap = useBootstrap();
   const pathname = usePathname() ?? "/";
-  const items = bootstrap?.nav.staff.flatMap((group) => group.items) ?? [];
+  const groups = bootstrap?.nav.staff ?? [];
+  const allItems = groups.flatMap((group) => group.items);
 
   return (
     <div className="min-h-dvh">
@@ -43,27 +44,52 @@ export function StaffShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <div className="grid min-h-[calc(100dvh-3.5rem)] grid-cols-1 md:grid-cols-[208px_minmax(0,1fr)]">
-        <aside className="hidden border-r border-line p-3 md:block">
-          <nav className="grid gap-1" aria-label="站务导航">
-            {items.map((item) => {
-              const active = isNavItemActive(item, pathname, items);
-              const Icon = navIcon(item.icon);
+      <div className="grid min-h-[calc(100dvh-3.5rem)] grid-cols-1 md:grid-cols-[232px_minmax(0,1fr)]">
+        <aside className="hidden border-r border-line px-3 py-4 md:block">
+          <nav className="grid gap-5" aria-label="站务导航">
+            {groups.map((group, groupIndex) => {
+              const activeGroup = group.items.some((item) =>
+                isNavItemActive(item, pathname, allItems),
+              );
               return (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "flex h-9 items-center gap-2.5 rounded-sm px-3 text-sm font-medium transition-colors",
-                    active
-                      ? "bg-accent/12 text-accent"
-                      : "text-fg-1 hover:bg-surface-2 hover:text-fg-0",
-                  )}
+                <section
+                  key={group.label ?? `staff-group-${String(groupIndex)}`}
+                  aria-label={group.label ?? "站务"}
+                  className="grid gap-1"
                 >
-                  <Icon className="size-4 shrink-0 opacity-85" />
-                  {item.label}
-                </Link>
+                  {group.label && (
+                    <p
+                      className={cn(
+                        "px-2 pb-1 text-2xs font-semibold tracking-[0.08em] uppercase",
+                        activeGroup ? "text-accent" : "text-fg-2",
+                      )}
+                    >
+                      {group.label}
+                    </p>
+                  )}
+                  <div className="grid gap-px border-l border-line/70 pl-2">
+                    {group.items.map((item) => {
+                      const active = isNavItemActive(item, pathname, allItems);
+                      const Icon = navIcon(item.icon);
+                      return (
+                        <Link
+                          key={item.key}
+                          href={item.href}
+                          aria-current={active ? "page" : undefined}
+                          className={cn(
+                            "flex h-9 items-center gap-2.5 rounded-sm px-2.5 text-sm font-medium transition-colors",
+                            active
+                              ? "bg-accent/12 text-accent"
+                              : "text-fg-1 hover:bg-surface-2 hover:text-fg-0",
+                          )}
+                        >
+                          <Icon className="size-4 shrink-0 opacity-85" />
+                          {item.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </section>
               );
             })}
           </nav>
