@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, ShieldCheck, X } from "lucide-react";
 import type { NavGroup } from "@kyokkou/contracts";
@@ -83,6 +83,12 @@ export function StaffShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() ?? "/";
   const groups = bootstrap?.nav.staff ?? [];
   const [open, setOpen] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    // 只重置右侧内容滚动；左侧导航保持原滚动位置。
+    mainRef.current?.scrollTo({ top: 0 });
+  }, [pathname]);
 
   useEffect(() => {
     setOpen(false);
@@ -98,8 +104,8 @@ export function StaffShell({ children }: { children: ReactNode }) {
   }, [open]);
 
   return (
-    <div className="min-h-dvh">
-      <header className="sticky top-0 z-[100] flex h-14 items-center gap-3 border-b border-line bg-surface-0/86 px-3 backdrop-blur-md backdrop-saturate-150 md:px-4">
+    <div className="flex h-dvh flex-col overflow-hidden">
+      <header className="sticky top-0 z-[100] flex h-14 shrink-0 items-center gap-3 border-b border-line bg-surface-0/86 px-3 backdrop-blur-md backdrop-saturate-150 md:px-4">
         <button
           type="button"
           aria-label="打开站务导航"
@@ -160,12 +166,12 @@ export function StaffShell({ children }: { children: ReactNode }) {
         </>
       )}
 
-      <div className="grid min-h-[calc(100dvh-3.5rem)] grid-cols-1 md:grid-cols-[232px_minmax(0,1fr)]">
-        <aside className="hidden border-r border-line px-3 py-4 md:block">
+      <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[232px_minmax(0,1fr)]">
+        <aside className="hidden h-full min-h-0 overflow-y-auto overscroll-contain border-r border-line px-3 py-4 md:block">
           <StaffNavGroups groups={groups} pathname={pathname} />
         </aside>
 
-        <main id="main" className="flex min-w-0 flex-col">
+        <main id="main" ref={mainRef} className="flex min-h-0 min-w-0 flex-col overflow-y-auto overscroll-contain">
           <div className="mx-auto w-full max-w-[1200px] flex-1 p-3 md:p-6">{children}</div>
           <SiteFooter variant="compact" />
         </main>

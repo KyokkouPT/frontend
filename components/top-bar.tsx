@@ -23,7 +23,7 @@ export function TopBar() {
   const topNav = navItems.filter((item) => item.href !== "/").slice(0, 3);
 
   return (
-    <header className="sticky top-0 z-[100] flex h-14 items-center gap-2 border-b border-line bg-surface-0/86 px-3 backdrop-blur-md backdrop-saturate-150 md:gap-4 md:px-4">
+    <header className="sticky top-0 z-[100] flex h-14 shrink-0 items-center gap-2 border-b border-line bg-surface-0/86 px-3 backdrop-blur-md backdrop-saturate-150 md:gap-4 md:px-4">
       <MobileNav />
 
       <Link href="/" className="flex min-w-0 shrink-0 items-center gap-2" aria-label={name}>

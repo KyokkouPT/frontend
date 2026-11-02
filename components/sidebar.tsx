@@ -42,7 +42,7 @@ export function Sidebar() {
   const groups = bootstrap?.nav.site ?? [];
 
   return (
-    <aside className="sticky top-14 hidden h-[calc(100dvh-3.5rem)] flex-col gap-6 overflow-y-auto overscroll-contain border-r border-line px-3 py-4 md:flex max-xl:px-2">
+    <aside className="hidden h-full min-h-0 flex-col gap-6 overflow-y-auto overscroll-contain border-r border-line px-3 py-4 md:flex max-xl:px-2">
       {groups.map((group, groupIndex) => (
         <nav
           key={group.label ?? `group-${String(groupIndex)}`}
