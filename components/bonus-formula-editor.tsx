@@ -43,16 +43,19 @@ function formatNumber(value: number): string {
 
 export function BonusFormulaPanel({
   initial,
+  kind = "bonus",
 }: {
   initial: {
-    cron: string;
+    cron?: string;
     formula: string;
     next_run_at?: number | null;
     default_formula?: string;
   };
+  kind?: "bonus" | "seed_points";
 }) {
+  const isSeedPoints = kind === "seed_points";
   const router = useRouter();
-  const [cron, setCron] = useState(initial.cron);
+  const [cron, setCron] = useState(initial.cron ?? "0 * * * *");
   const [formula, setFormula] = useState(initial.formula);
   const [nextRun, setNextRun] = useState<number | null>(initial.next_run_at ?? null);
   const [preview, setPreview] = useState<BonusFormulaPreviewResponse | null>(null);
@@ -105,10 +108,12 @@ export function BonusFormulaPanel({
     try {
       const response = await apiFetch<StaffSettingsResponse>("/api/v1/staff/settings", {
         method: "PUT",
-        body: JSON.stringify({ bonus: { cron: cron.trim(), formula } }),
+        body: JSON.stringify(
+          isSeedPoints ? { seed_points: { formula } } : { bonus: { cron: cron.trim(), formula } },
+        ),
       });
-      setNextRun(response.settings.bonus.next_run_at ?? null);
-      setMessage("魔力值调度与公式已保存");
+      if (!isSeedPoints) setNextRun(response.settings.bonus.next_run_at ?? null);
+      setMessage(isSeedPoints ? "做种积分公式已保存" : "魔力值调度与公式已保存");
       router.refresh();
     } catch (caught) {
       setError(errorText(caught, "保存失败"));
@@ -119,20 +124,29 @@ export function BonusFormulaPanel({
 
   return (
     <Panel
-      title="魔力值调度与公式"
-      description="独立 cron；按标称间隔结算。公式由管理员自定义，保存前会校验。"
+      title={isSeedPoints ? "做种积分公式" : "魔力值调度与公式"}
+      description={
+        isSeedPoints
+          ? "独立于魔力值余额；默认使用 NexusPHP 风格公式，不叠加捐赠/勋章倍率。随魔力值 cron 结算。"
+          : "独立 cron；按标称间隔结算。公式由管理员自定义，保存前会校验。"
+      }
     >
       {error && <Notice tone="warn">{error}</Notice>}
       {message && <Notice tone="info">{message}</Notice>}
 
       <div className="mt-3 grid gap-3">
-        <Field label="魔力值 cron" htmlFor="bonus-cron" hint="默认 0 * * * *；最小间隔 5 分钟">
-          <Input id="bonus-cron" value={cron} onChange={(event) => setCron(event.target.value)} />
-        </Field>
+        {!isSeedPoints && (
+          <Field label="魔力值 cron" htmlFor="bonus-cron" hint="默认 0 * * * *；最小间隔 5 分钟">
+            <Input id="bonus-cron" value={cron} onChange={(event) => setCron(event.target.value)} />
+          </Field>
+        )}
 
-        <Field label="公式（每小时产出）" htmlFor="bonus-formula">
+        <Field
+          label={isSeedPoints ? "做种积分公式（每小时产出）" : "公式（每小时产出）"}
+          htmlFor={isSeedPoints ? "seed-points-formula" : "bonus-formula"}
+        >
           <Textarea
-            id="bonus-formula"
+            id={isSeedPoints ? "seed-points-formula" : "bonus-formula"}
             ref={textareaRef}
             value={formula}
             onChange={(event) => setFormula(event.target.value)}
@@ -165,7 +179,7 @@ export function BonusFormulaPanel({
             {pending === "preview" ? "校验中…" : "校验并预览"}
           </Button>
           <Button type="button" variant="primary" disabled={pending !== null} onClick={() => void save()}>
-            {pending === "save" ? "保存中…" : "保存调度与公式"}
+            {pending === "save" ? "保存中…" : isSeedPoints ? "保存做种积分公式" : "保存调度与公式"}
           </Button>
           <Button
             type="button"
@@ -175,15 +189,18 @@ export function BonusFormulaPanel({
           >
             载入默认公式
           </Button>
-          <span className="text-xs text-fg-2">
-            下次运行：{nextRun ? new Date(nextRun).toLocaleString("zh-CN") : "—"}
-          </span>
+          {!isSeedPoints && (
+            <span className="text-xs text-fg-2">
+              下次运行：{nextRun ? new Date(nextRun).toLocaleString("zh-CN") : "—"}
+            </span>
+          )}
         </div>
 
         {preview && (
           <div className="grid gap-3 rounded-md border border-line bg-surface-1 p-3">
             <div className="text-sm">
-              计算结果：<span className="font-mono font-semibold text-accent">{formatNumber(preview.result)}</span> 魔力值/小时
+              计算结果：<span className="font-mono font-semibold text-accent">{formatNumber(preview.result)}</span>{" "}
+              {isSeedPoints ? "积分/小时" : "魔力值/小时"}
             </div>
             {Object.keys(preview.variables).length > 0 && (
               <div className="flex flex-wrap gap-2 text-xs text-fg-1">

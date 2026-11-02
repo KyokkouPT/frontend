@@ -50,6 +50,7 @@ export default async function StaffSettingsPage() {
       <SettingsEditor initial={data.settings} />
       <div className="mt-6 grid gap-6">
         <BonusFormulaPanel initial={data.settings.bonus} />
+        <BonusFormulaPanel initial={data.settings.seed_points} kind="seed_points" />
         <ClassSchedulerPanel initial={data.settings.classes} />
       </div>
     </>
