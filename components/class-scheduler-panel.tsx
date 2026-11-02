@@ -41,12 +41,12 @@ export function ClassSchedulerPanel({
     setMessage(null);
     try {
       const response = await apiFetch<{
-        settings: { classes: { recalc_enabled: boolean; recalc_cron: string; next_run_at?: number | null } };
-      }>("/api/v1/staff/settings", {
+        settings: { recalc_enabled: boolean; recalc_cron: string; next_run_at?: number | null };
+      }>("/api/v1/staff/classes/scheduler", {
         method: "PUT",
-        body: JSON.stringify({ classes: { recalc_enabled: enabled, recalc_cron: cron.trim() } }),
+        body: JSON.stringify({ recalc_enabled: enabled, recalc_cron: cron.trim() }),
       });
-      setNextRun(response.settings.classes.next_run_at ?? null);
+      setNextRun(response.settings.next_run_at ?? null);
       setMessage("调度已保存");
     } catch (caught) {
       setError(caught instanceof ApiClientError ? caught.message : "保存失败");

@@ -1,15 +1,21 @@
 import { redirect } from "next/navigation";
-import type { ClassesResponse, ClassNotificationTemplates, ClassRulesSettings } from "@kyokkou/contracts";
+import type {
+  ClassesResponse,
+  ClassNotificationTemplates,
+  ClassRulesSettings,
+  ClassSchedulerResponse,
+} from "@kyokkou/contracts";
 import { getBootstrap } from "@/lib/bootstrap";
 import { ServerFetchError, serverFetch } from "@/lib/api/server";
 import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
 import { ClassRulesForm } from "@/components/class-rules-form";
+import { ClassSchedulerPanel } from "@/components/class-scheduler-panel";
 import { Panel } from "@/components/ui/panel";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "等级规则" };
+export const metadata = { title: "等级设置" };
 
 export default async function ClassRulesPage() {
   const bootstrap = await getBootstrap();
@@ -24,11 +30,13 @@ export default async function ClassRulesPage() {
 
   let rules: ClassRulesSettings;
   let templates: ClassNotificationTemplates;
+  let scheduler: ClassSchedulerResponse;
   let classes: ClassesResponse["items"] = [];
   try {
-    [rules, templates, { items: classes }] = await Promise.all([
+    [rules, templates, scheduler, { items: classes }] = await Promise.all([
       serverFetch<ClassRulesSettings>("/api/v1/staff/classes/rules"),
       serverFetch<ClassNotificationTemplates>("/api/v1/staff/classes/notifications"),
+      serverFetch<ClassSchedulerResponse>("/api/v1/staff/classes/scheduler"),
       serverFetch<ClassesResponse>("/api/v1/staff/classes"),
     ]);
   } catch (error) {
@@ -48,10 +56,13 @@ export default async function ClassRulesPage() {
   return (
     <>
       <PageHeader
-        title="等级规则"
-        description="分享率矩阵默认启用；通知模板支持占位符。重算调度在站点设置中配置。"
+        title="等级设置"
+        description="分享率矩阵、通知模板与等级重算调度。"
       />
-      <ClassRulesForm initialRules={rules} initialTemplates={templates} classes={classes} />
+      <div className="grid gap-6">
+        <ClassRulesForm initialRules={rules} initialTemplates={templates} classes={classes} />
+        <ClassSchedulerPanel initial={scheduler.settings} />
+      </div>
     </>
   );
 }
