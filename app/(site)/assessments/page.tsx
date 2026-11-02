@@ -31,7 +31,9 @@ const METRIC_LABEL: Record<string, string> = {
   uploaded_delta: "上传增量",
   downloaded_delta: "下载增量",
   seedtime_delta: "做种时长增量",
+  average_seedtime: "平均做种时间",
   bonus_delta: "魔力增量",
+  seed_points_delta: "做种积分增量",
   published_delta: "发布种子数",
   ratio: "分享率",
   last_active_days: "最近活跃天数",
@@ -44,7 +46,10 @@ function requirementText(item: AssessmentOfferItem["requirements"]["items"][numb
   if (item.metric === "uploaded_delta" || item.metric === "downloaded_delta") {
     return `${label} ${item.op} ${item.value} GB`;
   }
-  if (item.metric === "seedtime_delta") return `${label} ${item.op} ${item.value} 小时`;
+  if (item.metric === "seedtime_delta" || item.metric === "average_seedtime") {
+    return `${label} ${item.op} ${item.value} 小时`;
+  }
+  if (item.metric === "seed_points_delta") return `${label} ${item.op} ${item.value} 积分`;
   return `${label} ${item.op} ${item.value}`;
 }
 

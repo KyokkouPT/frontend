@@ -5,7 +5,10 @@ const GB = 1024 ** 3;
 
 export function formatAssessmentValue(item: AssessmentProgressItem, value: number): string {
   if (item.unit === "GB") return formatBytes(value * GB);
-  if (item.metric === "seedtime_delta") return `${value.toFixed(2)} 小时`;
+  if (item.metric === "seedtime_delta" || item.metric === "average_seedtime") {
+    return `${value.toFixed(2)} 小时`;
+  }
+  if (item.metric === "seed_points_delta") return `${value.toFixed(2)} 积分`;
   if (item.metric === "ratio") return value >= 9999 ? "∞" : value.toFixed(2);
   if (
     item.metric === "warnings" ||
