@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation";
 import { getBootstrap } from "@/lib/bootstrap";
 import { Notice } from "@/components/notice";
-import { PageHeader } from "@/components/page-header";
-import { ClassForm } from "@/components/class-form";
 import { Panel } from "@/components/ui/panel";
 
 export const dynamic = "force-dynamic";
@@ -20,10 +18,5 @@ export default async function NewClassPage() {
     );
   }
 
-  return (
-    <>
-      <PageHeader title="新建等级" description="rank 必须低于自己的等级；保存后可继续编辑条件与模板。" />
-      <ClassForm mode="create" />
-    </>
-  );
+  redirect("/staff/classes");
 }

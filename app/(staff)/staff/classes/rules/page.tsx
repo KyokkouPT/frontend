@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import type {
   ClassesResponse,
   ClassNotificationTemplates,
+  ClassRecoveryBandsResponse,
   ClassRulesSettings,
   ClassSchedulerResponse,
 } from "@kyokkou/contracts";
@@ -10,6 +11,7 @@ import { ServerFetchError, serverFetch } from "@/lib/api/server";
 import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
 import { ClassRulesForm } from "@/components/class-rules-form";
+import { ClassRecoveryBandsPanel } from "@/components/class-recovery-bands";
 import { ClassSchedulerPanel } from "@/components/class-scheduler-panel";
 import { Panel } from "@/components/ui/panel";
 
@@ -31,12 +33,14 @@ export default async function ClassRulesPage() {
   let rules: ClassRulesSettings;
   let templates: ClassNotificationTemplates;
   let scheduler: ClassSchedulerResponse;
+  let recovery: ClassRecoveryBandsResponse;
   let classes: ClassesResponse["items"] = [];
   try {
-    [rules, templates, scheduler, { items: classes }] = await Promise.all([
+    [rules, templates, scheduler, recovery, { items: classes }] = await Promise.all([
       serverFetch<ClassRulesSettings>("/api/v1/staff/classes/rules"),
       serverFetch<ClassNotificationTemplates>("/api/v1/staff/classes/notifications"),
       serverFetch<ClassSchedulerResponse>("/api/v1/staff/classes/scheduler"),
+      serverFetch<ClassRecoveryBandsResponse>("/api/v1/staff/classes/recovery-bands"),
       serverFetch<ClassesResponse>("/api/v1/staff/classes"),
     ]);
   } catch (error) {
@@ -57,10 +61,11 @@ export default async function ClassRulesPage() {
     <>
       <PageHeader
         title="等级设置"
-        description="分享率矩阵、通知模板与等级重算调度。"
+        description="固定用户组升级/降级条件、受限恢复分段、通知模板与重算调度。"
       />
       <div className="grid gap-6">
         <ClassRulesForm initialRules={rules} initialTemplates={templates} classes={classes} />
+        <ClassRecoveryBandsPanel initial={recovery.items} />
         <ClassSchedulerPanel initial={scheduler.settings} />
       </div>
     </>

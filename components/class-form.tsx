@@ -15,7 +15,8 @@ const METRICS = [
   { value: "downloaded", label: "下载量" },
   { value: "ratio", label: "分享率" },
   { value: "seedtime_hours", label: "做种时长（小时）" },
-  { value: "bonus", label: "魔力值/做种积分" },
+  { value: "bonus", label: "魔力值" },
+  { value: "seed_points", label: "做种积分" },
   { value: "torrents_published", label: "发布数" },
   { value: "invites_used", label: "已用邀请" },
   { value: "warnings", label: "警告次数" },
@@ -310,7 +311,7 @@ export function ClassForm({ mode, item }: { mode: "create" | "edit"; item?: Clas
     setError(null);
     const body = {
       name: name.trim(),
-      rank: Number(rank),
+      ...(mode === "create" ? { rank: Number(rank) } : {}),
       badge: badge.trim() || null,
       color: color.trim() || null,
       description: description.trim(),
@@ -367,11 +368,12 @@ export function ClassForm({ mode, item }: { mode: "create" | "edit"; item?: Clas
           <Field label="名称" htmlFor="class-name" required>
             <Input id="class-name" value={name} onChange={(event) => setName(event.target.value)} required />
           </Field>
-          <Field label="排序 rank" htmlFor="class-rank" hint="越大越高；只能管理低于自己 rank 的等级">
+          <Field label="排序 rank" htmlFor="class-rank" hint="固定 17 组，rank 不可修改">
             <Input
               id="class-rank"
               type="number"
               value={rank}
+              disabled={mode === "edit"}
               onChange={(event) => setRank(Number(event.target.value))}
             />
           </Field>

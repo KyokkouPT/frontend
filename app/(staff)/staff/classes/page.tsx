@@ -5,7 +5,6 @@ import { getBootstrap } from "@/lib/bootstrap";
 import { ServerFetchError, serverFetch } from "@/lib/api/server";
 import { Notice } from "@/components/notice";
 import { PageHeader } from "@/components/page-header";
-import { ClassDeleteButton } from "@/components/class-actions";
 import { Badge } from "@/components/ui/badge";
 import { Panel } from "@/components/ui/panel";
 
@@ -45,15 +44,7 @@ export default async function StaffClassesPage() {
     <>
       <PageHeader
         title="等级管理"
-        description="等级决定权限与自动升降；rank 越大越高。只能管理 rank 低于自己的等级。"
-        actions={
-          <Link
-            href="/staff/classes/new"
-            className="inline-flex h-10 items-center rounded-sm border border-accent bg-accent px-4 text-sm font-semibold text-accent-ink transition hover:brightness-110"
-          >
-            新建等级
-          </Link>
-        }
+        description="固定 17 个用户组，只能编辑名称、权限和规则；不能新增、删除或修改 rank。"
       />
 
       <Panel flush>
@@ -99,7 +90,6 @@ export default async function StaffClassesPage() {
                         >
                           编辑
                         </Link>
-                        <ClassDeleteButton slug={item.slug} name={item.name} />
                       </span>
                     </td>
                   </tr>
@@ -111,10 +101,10 @@ export default async function StaffClassesPage() {
       </Panel>
 
       <p className="mt-4 text-xs text-fg-2">
-        分享率矩阵与站内信模板在 <Link href="/staff/classes/rules" className="text-accent">等级规则</Link>；
+        分享率矩阵与站内信模板在 <Link href="/staff/classes/rules" className="text-accent">等级设置</Link>；
         模拟器在 <Link href="/staff/classes/simulate" className="text-accent">升降模拟</Link>；
         变更记录在 <Link href="/staff/classes/history" className="text-accent">等级历史</Link>；
-        重算调度在 <Link href="/staff/settings" className="text-accent">站点设置</Link>。
+        重算调度在 <Link href="/staff/classes/rules" className="text-accent">等级设置</Link>。
       </p>
     </>
   );
