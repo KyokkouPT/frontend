@@ -35,7 +35,6 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
           site: settings.site,
           registration: settings.registration,
           tracker: settings.tracker,
-          review: settings.review,
         }),
       });
       setSettings(result.settings);
@@ -207,42 +206,6 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
             />
             允许 IPv6
           </label>
-        </div>
-      </Panel>
-
-      <Panel title="审核">
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={settings.review.auto_approve_trusted}
-              onChange={(event) =>
-                patch("review", { auto_approve_trusted: event.target.checked })
-              }
-              className="size-[15px] accent-accent"
-            />
-            信任用户自动通过
-          </label>
-          <Field label="信任门槛（已通过数）" htmlFor="review-trusted">
-            <Input
-              id="review-trusted"
-              type="number"
-              value={String(settings.review.trusted_min_approved)}
-              onChange={(event) =>
-                patch("review", { trusted_min_approved: Number(event.target.value) })
-              }
-            />
-          </Field>
-          <Field label="待审提醒（小时）" htmlFor="review-pending">
-            <Input
-              id="review-pending"
-              type="number"
-              value={String(settings.review.pending_alert_hours)}
-              onChange={(event) =>
-                patch("review", { pending_alert_hours: Number(event.target.value) })
-              }
-            />
-          </Field>
         </div>
       </Panel>
 
