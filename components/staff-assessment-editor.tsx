@@ -61,6 +61,8 @@ export function StaffAssessmentEditor({
   const [status, setStatus] = useState<StaffAssessmentItem["status"]>("active");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [durationDays, setDurationDays] = useState(30);
+  const [maxParticipants, setMaxParticipants] = useState(0);
+  const [allowConcurrent, setAllowConcurrent] = useState(true);
   const [classSlugs, setClassSlugs] = useState<string[]>([]);
   const [rows, setRows] = useState<RequirementRow[]>([{ ...EMPTY_REQUIREMENT, id: 1 }]);
   const [rewardBonus, setRewardBonus] = useState(1000);
@@ -126,8 +128,8 @@ export function StaffAssessmentEditor({
         suspend_days: Number(penaltySuspend),
         ban: penaltyBan,
       },
-      max_participants: 0,
-      allow_concurrent: true,
+      max_participants: maxParticipants,
+      allow_concurrent: allowConcurrent,
       settle_early: true,
     };
   }
@@ -180,6 +182,8 @@ export function StaffAssessmentEditor({
     setType(item.type);
     setStatus(item.status);
     setDurationDays(item.duration_days);
+    setMaxParticipants(item.max_participants);
+    setAllowConcurrent(item.allow_concurrent);
     setClassSlugs(item.filters.class_slugs ?? []);
     setRows(
       item.requirements.items.map((requirement, index) => ({
@@ -330,6 +334,24 @@ export function StaffAssessmentEditor({
                 onChange={(event) => setDurationDays(Number(event.target.value))}
               />
             </Field>
+            <Field label="最大参与人数（0 不限）" htmlFor="assessment-max">
+              <Input
+                id="assessment-max"
+                type="number"
+                min={0}
+                value={maxParticipants}
+                onChange={(event) => setMaxParticipants(Number(event.target.value))}
+              />
+            </Field>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={allowConcurrent}
+                onChange={(event) => setAllowConcurrent(event.target.checked)}
+                className="size-[15px] accent-accent"
+              />
+              允许同一模板重复参与
+            </label>
           </div>
           <Field label="说明（Markdown）" htmlFor="assessment-description">
             <Textarea
