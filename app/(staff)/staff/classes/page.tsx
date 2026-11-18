@@ -101,7 +101,7 @@ export default async function StaffClassesPage() {
       </Panel>
 
       <p className="mt-4 text-xs text-fg-2">
-        分享率矩阵与站内信模板在 <Link href="/staff/classes/rules" className="text-accent">等级设置</Link>；
+        站内信模板与受限恢复分段在 <Link href="/staff/classes/rules" className="text-accent">等级设置</Link>；
         模拟器在 <Link href="/staff/classes/simulate" className="text-accent">升降模拟</Link>；
         变更记录在 <Link href="/staff/classes/history" className="text-accent">等级历史</Link>；
         重算调度在 <Link href="/staff/classes/rules" className="text-accent">等级设置</Link>。

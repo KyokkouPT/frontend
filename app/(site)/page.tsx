@@ -147,7 +147,7 @@ export default async function HomePage() {
             <div className="grid min-w-0 gap-6">
               <Panel
                 title="最新发布"
-                description="已通过审核的种子；详情与下载将在下一个纵切接入"
+                description="已通过审核的种子；点击进入详情或直接下载"
                 right={<Badge tone="default" mono>{`${String(home.data.latest.length)} 条`}</Badge>}
               >
                 {home.data.latest.length === 0 ? (

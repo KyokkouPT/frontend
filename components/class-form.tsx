@@ -159,7 +159,7 @@ function ConditionEditor({
 
       {rows.length === 0 ? (
         <p className="rounded-sm border border-dashed border-line px-3 py-2 text-xs text-fg-2">
-          暂无条件（空条件 = 所有人都满足 / 不限）。
+          暂无条件（空条件不会触发自动升级）。
         </p>
       ) : (
         <div className="grid gap-2">
