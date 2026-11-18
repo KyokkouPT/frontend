@@ -62,8 +62,8 @@ export default async function StaffClassesPage() {
             </thead>
             <tbody>
               {data.items.map((item) => {
-                const autoPromote = item.permissions.includes("class.auto_promote");
-                const autoDemote = item.permissions.includes("class.auto_demote");
+                const autoPromote = item.slug === "user" || item.promote_rule !== null;
+                const autoDemote = item.demote_rule !== null;
                 return (
                   <tr key={item.slug} className="border-b border-line/60 last:border-0">
                     <td className="px-4 py-3">
