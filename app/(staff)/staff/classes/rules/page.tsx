@@ -1,9 +1,7 @@
 import { redirect } from "next/navigation";
 import type {
-  ClassesResponse,
   ClassNotificationTemplates,
   ClassRecoveryBandsResponse,
-  ClassRulesSettings,
   ClassSchedulerResponse,
 } from "@kyokkou/contracts";
 import { getBootstrap } from "@/lib/bootstrap";
@@ -30,18 +28,14 @@ export default async function ClassRulesPage() {
     );
   }
 
-  let rules: ClassRulesSettings;
   let templates: ClassNotificationTemplates;
   let scheduler: ClassSchedulerResponse;
   let recovery: ClassRecoveryBandsResponse;
-  let classes: ClassesResponse["items"] = [];
   try {
-    [rules, templates, scheduler, recovery, { items: classes }] = await Promise.all([
-      serverFetch<ClassRulesSettings>("/api/v1/staff/classes/rules"),
+    [templates, scheduler, recovery] = await Promise.all([
       serverFetch<ClassNotificationTemplates>("/api/v1/staff/classes/notifications"),
       serverFetch<ClassSchedulerResponse>("/api/v1/staff/classes/scheduler"),
       serverFetch<ClassRecoveryBandsResponse>("/api/v1/staff/classes/recovery-bands"),
-      serverFetch<ClassesResponse>("/api/v1/staff/classes"),
     ]);
   } catch (error) {
     const message =
@@ -64,7 +58,7 @@ export default async function ClassRulesPage() {
         description="固定用户组升级/降级条件、受限恢复分段、通知模板与重算调度。"
       />
       <div className="grid gap-6">
-        <ClassRulesForm initialRules={rules} initialTemplates={templates} classes={classes} />
+        <ClassRulesForm initialTemplates={templates} />
         <ClassRecoveryBandsPanel initial={recovery.items} />
         <ClassSchedulerPanel initial={scheduler.settings} />
       </div>

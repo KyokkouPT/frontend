@@ -283,7 +283,7 @@ export function ClassForm({ mode, item }: { mode: "create" | "edit"; item?: Clas
   const [manualGrantable, setManualGrantable] = useState(item?.manual_grantable ?? true);
   const [visible, setVisible] = useState(item?.visible ?? true);
   const [exemptHr, setExemptHr] = useState(item?.exempt_hr ?? false);
-  const [exemptMatrix, setExemptMatrix] = useState(item?.exempt_ratio_matrix ?? false);
+  const [exemptMatrix] = useState(item?.exempt_ratio_matrix ?? false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -412,14 +412,6 @@ export function ClassForm({ mode, item }: { mode: "create" | "edit"; item?: Clas
           <label className="flex items-center gap-2">
             <input type="checkbox" checked={exemptHr} onChange={(e) => setExemptHr(e.target.checked)} />
             豁免 H&R
-          </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={exemptMatrix}
-              onChange={(e) => setExemptMatrix(e.target.checked)}
-            />
-            豁免分享率矩阵
           </label>
         </div>
       </section>
