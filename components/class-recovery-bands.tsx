@@ -72,7 +72,7 @@ export function ClassRecoveryBandsPanel({ initial }: { initial: ClassRecoveryBan
   return (
     <Panel
       title="受限恢复分段"
-      description="按下载量匹配分段，达到对应分享率即从“受限”恢复为“新用户”。可增删分段。"
+      description="按下载量匹配分段，达到对应分享率即从“受限”恢复为“新用户”。分段必须连续、不能重叠，最后一个不设上限。"
     >
       {error && <Notice tone="warn">{error}</Notice>}
       {message && <Notice tone="info">{message}</Notice>}
