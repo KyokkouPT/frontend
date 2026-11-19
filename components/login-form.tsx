@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { LoginResponse, SiteRegistration } from "@kyokkou/contracts";
@@ -27,12 +27,14 @@ export function LoginForm({
   const [password, setPassword] = useState("");
   const [totpCode, setTotpCode] = useState("");
   const [captchaCode, setCaptchaCode] = useState("");
-  const [captchaVersion, setCaptchaVersion] = useState(() => Date.now());
+  // SSR 与 CSR 的 Date.now() 不同，直接用会触发水合不一致；先用水合稳定的 id，刷新时再换时间戳。
+  const captchaSeed = useId();
+  const [captchaVersion, setCaptchaVersion] = useState(captchaSeed);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   function refreshCaptcha(): void {
-    setCaptchaVersion(Date.now());
+    setCaptchaVersion(`${captchaSeed}-${String(Date.now())}`);
     setCaptchaCode("");
   }
 
