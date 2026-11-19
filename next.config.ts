@@ -11,6 +11,8 @@ const apiOrigin = process.env.API_ORIGIN ?? "http://127.0.0.1:31001";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // 本地开发时同时允许 localhost / 127.0.0.1 / LAN IP 访问 HMR 与字体资源。
+  allowedDevOrigins: ["127.0.0.1", "localhost", "10.3.37.160"],
   // vendor/contracts 以 file: 符号链接引入，Turbopack 需要显式转译其中的 TS。
   transpilePackages: ["@kyokkou/contracts"],
   async rewrites() {

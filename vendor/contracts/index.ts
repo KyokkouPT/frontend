@@ -40,7 +40,15 @@ export type Problem = z.infer<typeof problem>;
 export const role = z.enum(["user", "moderator", "admin"]);
 export type Role = z.infer<typeof role>;
 
-export const userStatus = z.enum(["active", "suspended", "banned"]);
+export const userStatus = z.enum([
+  "active",
+  "suspended",
+  "banned",
+  /** 等待管理员审核（registration.verification=admin） */
+  "pending",
+  /** 等待邮箱验证（registration.verification=email） */
+  "pending_email",
+]);
 export type UserStatus = z.infer<typeof userStatus>;
 
 /** 权限 key 常量；后续纵切按需追加，不在前端硬编码字符串。 */
@@ -105,6 +113,9 @@ export const passwordResetStatus = z.object({
   token_ttl_minutes: z.number().int(),
 });
 
+export const registrationVerification = z.enum(["email", "admin", "automatic"]);
+export type RegistrationVerification = z.infer<typeof registrationVerification>;
+
 export const siteRegistration = z.object({
   open: z.boolean(),
   invite_registration_enabled: z.boolean(),
@@ -112,6 +123,7 @@ export const siteRegistration = z.object({
   closed_registration_mode: z.enum(["auto", "form", "message"]),
   invite_require_email: z.boolean(),
   invite_require_username: z.boolean(),
+  verification: registrationVerification,
 });
 export type SiteRegistration = z.infer<typeof siteRegistration>;
 
@@ -338,6 +350,25 @@ export const passwordResetRequestResponse = z.object({
   message: z.string(),
 });
 export type PasswordResetRequestResponse = z.infer<typeof passwordResetRequestResponse>;
+
+export const verifyEmailBody = z.object({
+  token: z.string().min(20).max(256),
+});
+
+export const verifyEmailResponse = z.object({
+  ok: z.literal(true),
+  username: z.string(),
+});
+
+export const resendVerificationBody = z.object({
+  identifier: z.string().min(1).max(190),
+});
+
+export const resendVerificationResponse = z.object({
+  ok: z.literal(true),
+  message: z.string(),
+});
+export type ResendVerificationResponse = z.infer<typeof resendVerificationResponse>;
 
 export const loginRequest = z.object({
   username: z.string().min(1).max(190),
@@ -740,6 +771,15 @@ export const invitePreview = z.object({
 });
 export type InvitePreview = z.infer<typeof invitePreview>;
 
+export const signupResponse = z.object({
+  user: userSummary,
+  csrf_token: z.string().optional(),
+  /** 注册后的验证状态：active 可立即登录；pending_* 需要等待验证/审核。 */
+  verification: registrationVerification,
+  message: z.string(),
+});
+export type SignupResponse = z.infer<typeof signupResponse>;
+
 export const signupRequest = z.object({
   username: z.string().min(2).max(64),
   email: z.string().email().max(190),
@@ -1079,6 +1119,8 @@ export const staffSettings = z.object({
     closed_registration_mode: z.enum(["auto", "form", "message"]),
     invite_require_email: z.boolean(),
     invite_require_username: z.boolean(),
+    verification: registrationVerification,
+    verification_token_ttl_hours: z.number().int().min(1).max(720),
   }),
   password_reset: z.object({
     enabled: z.boolean(),

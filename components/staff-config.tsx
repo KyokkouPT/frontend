@@ -156,6 +156,45 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
             />
           </Field>
           <Field
+            label="注册验证方式"
+            htmlFor="registration-verification"
+            hint="email：注册后必须验证邮箱；admin：注册后等待管理员审核；automatic：注册即生效"
+          >
+            <Select
+              id="registration-verification"
+              value={settings.registration.verification}
+              onChange={(event) =>
+                patch("registration", {
+                  verification: event.target.value as "email" | "admin" | "automatic",
+                })
+              }
+            >
+              <option value="automatic">automatic · 注册即生效</option>
+              <option value="email">email · 邮箱验证</option>
+              <option value="admin">admin · 管理员审核</option>
+            </Select>
+          </Field>
+          {settings.registration.verification === "email" && (
+            <Field
+              label="验证链接有效期（小时）"
+              htmlFor="registration-verification-ttl"
+              hint="1–720；过期后可在验证页重新发送"
+            >
+              <Input
+                id="registration-verification-ttl"
+                type="number"
+                min={1}
+                max={720}
+                value={String(settings.registration.verification_token_ttl_hours)}
+                onChange={(event) =>
+                  patch("registration", {
+                    verification_token_ttl_hours: Number(event.target.value),
+                  })
+                }
+              />
+            </Field>
+          )}
+          <Field
             label="关闭注册时点击注册"
             htmlFor="registration-closed-mode"
             hint="auto：无邀请码时显示提示，有邀请码时显示表单；form：无邀请码也显示表单；message：无邀请码只显示提示（有邀请码仍显示表单）"

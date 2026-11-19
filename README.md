@@ -37,7 +37,8 @@ UI 来自仓库外层的 `web/` v0 原型，**不复制 fixture 进本仓库**�
 | `/me/leeching` | 正在下载：状态与做种义务提示 | `/api/v1/me` |
 | `/me/bonus` | 魔力值：余额、每小时产出、账本、兑换、冻结提示 | `/api/v1/me/bonus` |
 | `/me/rss` | 个人 RSS 地址与复制 | `/api/v1/me/rss` |
-| `/signup` | 注册：邀请码、规则确认、自动登录 | `/api/v1/auth/signup` |
+| `/signup` | 注册：邀请码、规则确认；按站点配置直接登录 / 等待邮箱验证 / 等待管理员审核 | `/api/v1/auth/signup` |
+| `/verify-email` | 邮箱验证落地页，token 失效时可重发 | `/api/v1/auth/verify-email`、`/verify-email/resend` |
 | `/me/invite` | 邀请码列表/生成/复制 | `/api/v1/me/invites` |
 | `/requests` | 求种列表、发布（冻结悬赏）、取消、Staff 结算 | `/api/v1/requests` |
 | `/top` | 用户与种子榜单（上传/魔力/做种/种子表现） | `/api/v1/top` |
@@ -47,7 +48,7 @@ UI 来自仓库外层的 `web/` v0 原型，**不复制 fixture 进本仓库**�
 | `/appeal` | 免登录封禁申诉 | `/api/v1/appeals/public` |
 | `/staff` | 站务概览 | `/api/v1/staff/summary` |
 | `/staff/reports`、`/staff/users`、`/staff/anomalies`、`/staff/audit`、`/staff/appeals` | 举报、用户管理、反作弊、审计（CSV）、申诉 | `/api/v1/staff/*` |
-| `/staff/settings`、`/staff/sections` | 站点设置（含密码找回策略）；分区/分类编辑（仅 admin） | `/api/v1/staff/settings`、`/staff/sections` |
+| `/staff/settings`、`/staff/sections` | 站点设置（含注册验证方式与密码找回策略）；分区/分类编辑（仅 admin） | `/api/v1/staff/settings`、`/staff/sections` |
 
 空状态、错误状态、加载状态均已实现：API 失败时显示 problem+json 文案与排查提示，不静默回退到假数据。
 

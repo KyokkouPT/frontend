@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { LoginResponse, SiteRegistration } from "@kyokkou/contracts";
+import type { SiteRegistration, SignupResponse } from "@kyokkou/contracts";
 import { ApiClientError, apiPost } from "@/lib/api/client";
 import { Button } from "./ui/button";
 import { Field, Input } from "./ui/field";
@@ -30,6 +30,9 @@ export function SignupForm({
   const [rulesAccepted, setRulesAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [awaiting, setAwaiting] = useState<{ mode: "email" | "admin"; message: string } | null>(
+    null,
+  );
   const inviteLocked = initialInvite.trim().length > 0;
   const usernameLocked = Boolean(boundUsername);
   const emailLocked = Boolean(boundEmail);
@@ -80,7 +83,7 @@ export function SignupForm({
 
     setPending(true);
     try {
-      await apiPost<LoginResponse>("/api/v1/auth/signup", {
+      const result = await apiPost<SignupResponse>("/api/v1/auth/signup", {
         username,
         email,
         password,
@@ -88,6 +91,13 @@ export function SignupForm({
         rules_accepted: true,
         ...(inviteCode.trim() ? { invite_code: inviteCode.trim() } : {}),
       });
+
+      if (result.verification === "email" || result.verification === "admin") {
+        setAwaiting({ mode: result.verification, message: result.message });
+        setPending(false);
+        return;
+      }
+
       router.replace("/");
       router.refresh();
     } catch (signupError) {
@@ -98,6 +108,32 @@ export function SignupForm({
       );
       setPending(false);
     }
+  }
+
+  if (awaiting) {
+    return (
+      <>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em]">注册已提交</h1>
+        <p className="mt-1.5 text-sm text-fg-1">{awaiting.message}</p>
+
+        <Notice tone="info" className="mt-6">
+          {awaiting.mode === "email" ? (
+            <>
+              我们已向 <strong>{email}</strong> 发送验证邮件。请打开邮件中的链接完成验证后返回登录。
+              没收到？检查垃圾邮件，或稍后在登录页重新发送验证邮件。
+            </>
+          ) : (
+            <>账号正在等待管理员审核，审核通过后即可登录。</>
+          )}
+        </Notice>
+
+        <p className="mt-4 text-center text-xs text-fg-2">
+          <Link href="/login" className="font-medium text-accent hover:underline">
+            返回登录
+          </Link>
+        </p>
+      </>
+    );
   }
 
   return (
@@ -214,8 +250,20 @@ export function SignupForm({
 
         {error && <Notice tone="warn">{error}</Notice>}
 
-        <Button variant="primary" size="lg" type="submit" className="w-full" disabled={pending || !rulesAccepted || submissionBlocked}>
-          {pending ? "注册中…" : "注册并登录"}
+        <Button
+          variant="primary"
+          size="lg"
+          type="submit"
+          className="w-full"
+          disabled={pending || !rulesAccepted || submissionBlocked}
+        >
+          {pending
+            ? "注册中…"
+            : registration?.verification === "email"
+              ? "注册并发送验证邮件"
+              : registration?.verification === "admin"
+                ? "提交注册申请"
+                : "注册并登录"}
         </Button>
 
         <p className="text-center text-xs text-fg-2">
