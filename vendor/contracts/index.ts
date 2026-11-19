@@ -332,6 +332,7 @@ export const passwordResetCompleteBody = z.object({
   password_confirm: z.string().min(8).max(200),
 });
 
+
 export const passwordResetRequestResponse = z.object({
   ok: z.literal(true),
   message: z.string(),
