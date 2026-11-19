@@ -43,7 +43,7 @@ export default async function StaffSettingsPage() {
     <>
       <PageHeader
         title="站点设置"
-        description="保存后立即影响 bootstrap、注册、Tracker 与经济；写入审计日志（settings.update）。"
+        description="保存后立即影响 bootstrap、注册、密码找回、Tracker 与经济；写入审计日志（settings.update）。"
       />
       <SettingsEditor initial={data.settings} />
     </>

@@ -8,14 +8,19 @@ import { ApiClientError, apiPost } from "@/lib/api/client";
 import { Button } from "./ui/button";
 import { Field, Input } from "./ui/field";
 import { Markdown } from "./markdown";
+import { Notice } from "./notice";
 
 /** 登录表单：真实调用 /api/v1/auth/login，失败展示 problem+json 文案。 */
 export function LoginForm({
   next,
   registration,
+  passwordResetEnabled = false,
+  resetSuccess = false,
 }: {
   next: string;
   registration: SiteRegistration | null;
+  passwordResetEnabled?: boolean;
+  resetSuccess?: boolean;
 }) {
   const router = useRouter();
   const [username, setUsername] = useState("");
@@ -62,6 +67,11 @@ export function LoginForm({
       <p className="mt-1.5 text-sm text-fg-1">
         使用站点账号登录。启用两步验证后还需要输入动态验证码。
       </p>
+      {resetSuccess && (
+        <Notice tone="info" className="mt-4">
+          密码已重置，所有旧登录会话已退出。请使用新密码登录。
+        </Notice>
+      )}
       <form onSubmit={onSubmit} className="mt-6 grid gap-4" noValidate>
         <Field label="用户名或邮箱" htmlFor="username">
           <Input
@@ -149,6 +159,14 @@ export function LoginForm({
         <Button variant="primary" size="lg" type="submit" className="w-full" disabled={pending}>
           {pending ? "登录中…" : "登录"}
         </Button>
+
+        {passwordResetEnabled && (
+          <p className="text-center text-xs text-fg-2">
+            <Link href="/forgot-password" className="font-medium text-accent hover:underline">
+              忘记密码？
+            </Link>
+          </p>
+        )}
 
         {registration?.open || registration?.invite_registration_enabled ? (
           <p className="text-center text-xs leading-relaxed text-fg-2">

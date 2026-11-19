@@ -23,7 +23,9 @@ UI 来自仓库外层的 `web/` v0 原型，**不复制 fixture 进本仓库**�
 | --- | --- | --- |
 | `/` | 首页：问候、统计、最新发布、公告、分区、促销、我的待办 | `/api/v1/home` + bootstrap |
 | `/rules` | 注册、审核、Tracker、H&R、分区规范 | `/api/v1/rules` |
-| `/login` | 登录（真实表单 + CSRF + 2FA 可选字段） | `/api/v1/auth/csrf`、`/api/v1/auth/login` |
+| `/login` | 登录（真实表单 + CSRF + 2FA 可选字段、找回密码入口） | `/api/v1/auth/csrf`、`/api/v1/auth/login` |
+| `/forgot-password` | 请求密码重置邮件（防枚举） | `/api/v1/auth/password/request` |
+| `/reset-password` | 用邮件 token 设置新密码 | `/api/v1/auth/password/reset` |
 | `/setup` | 首次安装向导：站点名、管理员、基础分区、开放注册 | `/api/v1/setup` |
 | `/me` | 我的概览（登录守卫；未登录跳 `/login?next=/me`） | `/api/v1/me` |
 | `/browse` | 浏览：分区/分类/促销/字段/搜索/排序/加载更多 | `/api/v1/torrents` |
@@ -45,7 +47,7 @@ UI 来自仓库外层的 `web/` v0 原型，**不复制 fixture 进本仓库**�
 | `/appeal` | 免登录封禁申诉 | `/api/v1/appeals/public` |
 | `/staff` | 站务概览 | `/api/v1/staff/summary` |
 | `/staff/reports`、`/staff/users`、`/staff/anomalies`、`/staff/audit`、`/staff/appeals` | 举报、用户管理、反作弊、审计（CSV）、申诉 | `/api/v1/staff/*` |
-| `/staff/settings`、`/staff/sections` | 站点设置；分区/分类编辑（仅 admin） | `/api/v1/staff/settings`、`/staff/sections` |
+| `/staff/settings`、`/staff/sections` | 站点设置（含密码找回策略）；分区/分类编辑（仅 admin） | `/api/v1/staff/settings`、`/staff/sections` |
 
 空状态、错误状态、加载状态均已实现：API 失败时显示 problem+json 文案与排查提示，不静默回退到假数据。
 

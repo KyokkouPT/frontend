@@ -100,6 +100,11 @@ export const siteFooter = z.object({
   status: z.string(),
 });
 
+export const passwordResetStatus = z.object({
+  enabled: z.boolean(),
+  token_ttl_minutes: z.number().int(),
+});
+
 export const siteRegistration = z.object({
   open: z.boolean(),
   invite_registration_enabled: z.boolean(),
@@ -119,6 +124,7 @@ export const siteIdentity = z.object({
   theme: siteTheme,
   modules: z.record(z.boolean()),
   registration: siteRegistration,
+  password_reset: passwordResetStatus,
   footer: siteFooter,
 });
 export type SiteIdentity = z.infer<typeof siteIdentity>;
@@ -315,6 +321,22 @@ export type HomeResponse = z.infer<typeof homeResponse>;
 
 export const csrfResponse = z.object({ csrf_token: z.string() });
 export type CsrfResponse = z.infer<typeof csrfResponse>;
+
+export const passwordResetRequest = z.object({
+  identifier: z.string().min(1).max(190),
+});
+
+export const passwordResetCompleteBody = z.object({
+  token: z.string().min(20).max(256),
+  password: z.string().min(8).max(200),
+  password_confirm: z.string().min(8).max(200),
+});
+
+export const passwordResetRequestResponse = z.object({
+  ok: z.literal(true),
+  message: z.string(),
+});
+export type PasswordResetRequestResponse = z.infer<typeof passwordResetRequestResponse>;
 
 export const loginRequest = z.object({
   username: z.string().min(1).max(190),
@@ -1057,6 +1079,12 @@ export const staffSettings = z.object({
     invite_require_email: z.boolean(),
     invite_require_username: z.boolean(),
   }),
+  password_reset: z.object({
+    enabled: z.boolean(),
+    token_ttl_minutes: z.number().int().min(5).max(1440),
+    request_cooldown_minutes: z.number().int().min(0).max(1440),
+    max_requests_per_ip_per_hour: z.number().int().min(0).max(1000),
+  }),
   tracker: z.object({
     announce_interval: z.number().int().min(60),
     min_interval: z.number().int().min(30),
@@ -1086,6 +1114,7 @@ export type StaffSettingsResponse = z.infer<typeof staffSettingsResponse>;
 export const updateStaffSettingsBody = z.object({
   site: staffSettings.shape.site.partial().optional(),
   registration: staffSettings.shape.registration.partial().optional(),
+  password_reset: staffSettings.shape.password_reset.partial().optional(),
   tracker: staffSettings.shape.tracker.partial().optional(),
 });
 export type UpdateStaffSettingsBody = z.infer<typeof updateStaffSettingsBody>;

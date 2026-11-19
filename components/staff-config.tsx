@@ -34,6 +34,7 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
         body: JSON.stringify({
           site: settings.site,
           registration: settings.registration,
+          password_reset: settings.password_reset,
           tracker: settings.tracker,
         }),
       });
@@ -172,6 +173,77 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
               <option value="form">显示注册表单</option>
               <option value="message">只显示关闭提示</option>
             </Select>
+          </Field>
+        </div>
+      </Panel>
+
+      <Panel
+        title="密码找回"
+        description="邮件重置链接、请求冷却与来源 IP 限额；修改后立即生效"
+      >
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="flex items-center gap-2 text-sm sm:col-span-2">
+            <input
+              type="checkbox"
+              checked={settings.password_reset.enabled}
+              onChange={(event) =>
+                patch("password_reset", { enabled: event.target.checked })
+              }
+              className="size-[15px] accent-accent"
+            />
+            开放密码找回（需要已配置 SMTP）
+          </label>
+          <Field
+            label="令牌有效期（分钟）"
+            htmlFor="password-reset-ttl"
+            hint="5–1440；过期后必须重新申请"
+          >
+            <Input
+              id="password-reset-ttl"
+              type="number"
+              min={5}
+              max={1440}
+              value={String(settings.password_reset.token_ttl_minutes)}
+              onChange={(event) =>
+                patch("password_reset", { token_ttl_minutes: Number(event.target.value) })
+              }
+            />
+          </Field>
+          <Field
+            label="同账号冷却（分钟）"
+            htmlFor="password-reset-cooldown"
+            hint="0 表示不限制；冷却期内重复请求仍返回成功，但不重复发信"
+          >
+            <Input
+              id="password-reset-cooldown"
+              type="number"
+              min={0}
+              max={1440}
+              value={String(settings.password_reset.request_cooldown_minutes)}
+              onChange={(event) =>
+                patch("password_reset", {
+                  request_cooldown_minutes: Number(event.target.value),
+                })
+              }
+            />
+          </Field>
+          <Field
+            label="同 IP 每小时上限"
+            htmlFor="password-reset-ip-limit"
+            hint="0 表示不限制；超过上限仍返回相同成功文案"
+          >
+            <Input
+              id="password-reset-ip-limit"
+              type="number"
+              min={0}
+              max={1000}
+              value={String(settings.password_reset.max_requests_per_ip_per_hour)}
+              onChange={(event) =>
+                patch("password_reset", {
+                  max_requests_per_ip_per_hour: Number(event.target.value),
+                })
+              }
+            />
           </Field>
         </div>
       </Panel>
