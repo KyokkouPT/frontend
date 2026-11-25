@@ -143,3 +143,7 @@ pnpm 11 只从 `pnpm-workspace.yaml` 读取 build scripts 严格度设置。本�
 ## 待移植页面（按纵切）
 
 Docker/Nginx 部署验证与 MySQL/PG 实跑。规范见仓库外 `docs/19-frontend-spec.md`。
+
+## 许可证
+
+Apache-2.0。完整文本见 [LICENSE](LICENSE)，归属声明见 [NOTICE](NOTICE)。
