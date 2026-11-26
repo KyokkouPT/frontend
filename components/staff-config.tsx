@@ -16,6 +16,8 @@ function errorText(error: unknown, fallback: string): string {
 export function SettingsEditor({ initial }: { initial: StaffSettings }) {
   const router = useRouter();
   const [settings, setSettings] = useState(initial);
+  const [emailAllowDomains, setEmailAllowDomains] = useState((initial.registration.email_allow_domains ?? []).join("\n"));
+  const [emailDenyDomains, setEmailDenyDomains] = useState((initial.registration.email_deny_domains ?? []).join("\n"));
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +35,10 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
         method: "PUT",
         body: JSON.stringify({
           site: settings.site,
-          registration: settings.registration,
+          registration: { ...settings.registration,
+            email_allow_domains: emailAllowDomains.split(/[\s,;]+/).map((value) => value.toLowerCase()).filter(Boolean),
+            email_deny_domains: emailDenyDomains.split(/[\s,;]+/).map((value) => value.toLowerCase()).filter(Boolean),
+          },
           password_reset: settings.password_reset,
           tracker: settings.tracker,
         }),
@@ -198,6 +203,23 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
             <Input id="registration-verification-cooldown" type="number" min={1} max={1440}
               value={String(settings.registration.verification_cooldown_minutes)}
               onChange={(event) => patch("registration", { verification_cooldown_minutes: Number(event.target.value) })} />
+          </Field>
+          {([
+            ["max_users", "用户总量上限", 100000000],
+            ["max_accounts_per_ip", "同 IP 注册账号上限", 100000],
+            ["pending_ttl_hours", "待确认注册有效期（小时）", 8760],
+          ] as const).map(([key, label, max]) => (
+            <Field key={key} label={label} htmlFor={`registration-${key}`} hint="0 表示不限制；邀请注册同样受限，不追溯已有账号">
+              <Input id={`registration-${key}`} type="number" min={0} max={max}
+                value={String(settings.registration[key] ?? 0)}
+                onChange={(event) => patch("registration", { [key]: Number(event.target.value) })} />
+            </Field>
+          ))}
+          <Field label="允许的邮箱域名" htmlFor="registration-email-allow" hint="每行一个；留空允许所有域名；*.example.com 仅匹配子域，国际域名使用 Punycode">
+            <Textarea id="registration-email-allow" value={emailAllowDomains} onChange={(event) => setEmailAllowDomains(event.target.value)} />
+          </Field>
+          <Field label="禁止的邮箱域名" htmlFor="registration-email-deny" hint="每行一个；禁止名单优先于允许名单">
+            <Textarea id="registration-email-deny" value={emailDenyDomains} onChange={(event) => setEmailDenyDomains(event.target.value)} />
           </Field>
           <Field
             label="关闭注册时点击注册"

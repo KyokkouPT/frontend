@@ -1123,6 +1123,11 @@ export const staffSettings = z.object({
     verification: registrationVerification,
     verification_token_ttl_hours: z.number().int().min(1).max(720),
     verification_cooldown_minutes: z.number().int().min(1).max(1440).default(15),
+    max_users: z.number().int().min(0).max(100000000).default(0),
+    max_accounts_per_ip: z.number().int().min(0).max(100000).default(0),
+    pending_ttl_hours: z.number().int().min(0).max(8760).default(0),
+    email_allow_domains: z.array(z.string().min(1).max(253).regex(/^(?:\*\.)?(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/)).max(1000).default([]),
+    email_deny_domains: z.array(z.string().min(1).max(253).regex(/^(?:\*\.)?(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)*[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/)).max(1000).default([]),
   }),
   password_reset: z.object({
     enabled: z.boolean(),
@@ -1158,7 +1163,14 @@ export type StaffSettingsResponse = z.infer<typeof staffSettingsResponse>;
 
 export const updateStaffSettingsBody = z.object({
   site: staffSettings.shape.site.partial().optional(),
-  registration: staffSettings.shape.registration.partial().optional(),
+  registration: staffSettings.shape.registration.extend({
+    verification_cooldown_minutes: staffSettings.shape.registration.shape.verification_cooldown_minutes.unwrap(),
+    max_users: staffSettings.shape.registration.shape.max_users.unwrap(),
+    max_accounts_per_ip: staffSettings.shape.registration.shape.max_accounts_per_ip.unwrap(),
+    pending_ttl_hours: staffSettings.shape.registration.shape.pending_ttl_hours.unwrap(),
+    email_allow_domains: staffSettings.shape.registration.shape.email_allow_domains.unwrap(),
+    email_deny_domains: staffSettings.shape.registration.shape.email_deny_domains.unwrap(),
+  }).partial().optional(),
   password_reset: staffSettings.shape.password_reset.partial().optional(),
   tracker: staffSettings.shape.tracker.partial().optional(),
 });
