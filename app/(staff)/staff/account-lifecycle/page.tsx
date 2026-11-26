@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import type { AccountLifecycleSettings } from "@kyokkou/contracts";
+import type { AccountLifecycleSettings, InactivityPolicy, InactivityPreviewResponse } from "@kyokkou/contracts";
 import { getBootstrap } from "@/lib/bootstrap";
 import { serverFetch, ServerFetchError } from "@/lib/api/server";
 import { ParkingPolicy } from "@/components/account-parking";
@@ -14,7 +14,11 @@ export default async function AccountLifecyclePage() {
   if (!bootstrap?.me) redirect("/login?next=/staff/account-lifecycle");
   if (!bootstrap.permissions.includes("staff.settings")) return <Notice tone="warn">没有站点设置权限。</Notice>;
   try {
-    const result = await serverFetch<{ settings: AccountLifecycleSettings }>("/api/v1/staff/account-lifecycle");
-    return <><PageHeader title="账号生命周期" description="配置账号停放，试算不活跃分档与豁免范围。" /><div className="grid gap-5"><ParkingPolicy initial={result.settings} /><AccountLifecyclePreview /></div></>;
+    const [result, inactivity, state] = await Promise.all([
+      serverFetch<{ settings: AccountLifecycleSettings }>("/api/v1/staff/account-lifecycle"),
+      serverFetch<InactivityPolicy>("/api/v1/staff/account-inactivity"),
+      serverFetch<InactivityPreviewResponse>("/api/v1/staff/account-inactivity/preview"),
+    ]);
+    return <><PageHeader title="账号生命周期" description="配置账号停放、不活跃通知与停用，查看豁免和执行状态。" /><div className="grid gap-5"><ParkingPolicy initial={result.settings} /><AccountLifecyclePreview initial={inactivity} initialState={state} /></div></>;
   } catch (error) { return <Notice tone="warn">{error instanceof ServerFetchError ? error.message : "账号策略加载失败，请稍后重试"}</Notice>; }
 }

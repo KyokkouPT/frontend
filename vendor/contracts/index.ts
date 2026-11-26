@@ -286,6 +286,15 @@ export const accountLifecyclePreviewResponse = z.object({
   })),
 });
 export type AccountLifecyclePreviewResponse = z.infer<typeof accountLifecyclePreviewResponse>;
+export const inactivityPolicy = z.object({ enabled: z.boolean(), revision: z.number().int().nonnegative(), policy: accountLifecyclePreviewPolicy }).strict();
+export type InactivityPolicy = z.infer<typeof inactivityPolicy>;
+export const inactivityPreviewResponse = z.object({ evaluated_at: z.number(), next_cursor: z.number().nullable(), revision: z.number(), enabled: z.boolean(),
+  items: z.array(accountLifecyclePreviewResponse.shape.items.element.extend({
+    next_action: z.enum(["none", "notify", "wait", "suspend", "suspended"]),
+    notified_at: z.number().nullable(), disable_at: z.number().nullable(), disabled_at: z.number().nullable(),
+  })),
+});
+export type InactivityPreviewResponse = z.infer<typeof inactivityPreviewResponse>;
 export const loginEvent = z.object({ id: z.number().int(), user_id: z.number().nullable(), username: z.string().nullable(), ip: z.string(), user_agent: z.string(), outcome: z.string(), created_at: z.number() });
 export type LoginEvent = z.infer<typeof loginEvent>;
 export const loginEventsResponse = z.object({ items: z.array(loginEvent), next_cursor: z.string().nullable() });

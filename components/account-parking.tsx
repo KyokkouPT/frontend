@@ -48,6 +48,6 @@ export function ParkingPolicy({ initial }: { initial: AccountLifecycleSettings }
       } catch (caught) { setError(caught instanceof ApiClientError ? caught.message : "策略保存失败，请重试"); }
       finally { setBusy(false); }
     })(); }}>{busy ? "保存中…" : "保存停放策略"}</Button>
-    <p className="mt-3 text-xs text-fg-2">本功能仅登记请假状态；自动停用与匿名化销毁尚未启用。</p>
+    <p className="mt-3 text-xs text-fg-2">停放登记请假状态，不免除已有 H&amp;R 或考核义务。不活跃处理由下方独立策略控制。</p>
   </Panel>;
 }
