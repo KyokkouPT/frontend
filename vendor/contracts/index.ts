@@ -134,7 +134,7 @@ export const siteIdentity = z.object({
   allow_guest_access: z.boolean(),
   version: z.string(),
   theme: siteTheme,
-  modules: z.record(z.boolean()),
+  modules: z.record(z.string(), z.boolean()),
   registration: siteRegistration,
   password_reset: passwordResetStatus,
   footer: siteFooter,
@@ -193,7 +193,7 @@ export const section = z.object({
   name: z.string(),
   display_order: z.number().int(),
   review_mode: z.string(),
-  charter: z.record(z.string()).optional(),
+  charter: z.record(z.string(), z.string()).optional(),
   fields: z.array(sectionField),
   categories: z.array(category),
 });
@@ -277,7 +277,7 @@ export const torrentSummary = z.object({
   completed: z.number().int(),
   created_at: z.number(),
   tags: z.array(z.string()),
-  meta: z.record(z.union([z.string(), z.number(), z.boolean()])),
+  meta: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])),
   zero_bonus: z.boolean(),
   owned: z.boolean(),
   download_url: z.string(),
@@ -433,7 +433,7 @@ export const rulesSection = z.object({
   slug: z.string(),
   name: z.string(),
   review_mode: z.string(),
-  charter: z.record(z.string()).optional(),
+  charter: z.record(z.string(), z.string()).optional(),
   fields: z.array(sectionField),
 });
 
@@ -515,7 +515,7 @@ export type BonusFormulaPreviewBody = z.infer<typeof bonusFormulaPreviewBody>;
 
 export const bonusFormulaPreviewResponse = z.object({
   result: z.number(),
-  variables: z.record(z.number()),
+  variables: z.record(z.string(), z.number()),
   samples: z.array(bonusFormulaSample),
   torrents: z.array(bonusFormulaTorrentTerm),
   warnings: z.array(z.string()),
@@ -532,7 +532,7 @@ export const bonusFormulaSimulateResponse = z.object({
   user_id: z.number().int(),
   username: z.string(),
   result: z.number(),
-  variables: z.record(z.number()),
+  variables: z.record(z.string(), z.number()),
   torrents: z.array(bonusFormulaTorrentTerm),
   warnings: z.array(z.string()),
 });
@@ -1477,8 +1477,8 @@ export const staffAssessmentBody = z.object({
   recurring: z.enum(["none", "daily", "weekly", "monthly"]).default("none"),
   filters: assessmentFilters.default({}),
   requirements: assessmentRequirements,
-  reward: assessmentReward.default({}),
-  penalty: assessmentPenalty.default({}),
+  reward: assessmentReward.default({ bonus: 0, invite: 0 }),
+  penalty: assessmentPenalty.default({ bonus: 0, invite: 0, warn: 0, suspend_days: 0, ban: false }),
   max_participants: z.number().int().min(0).default(0),
   allow_concurrent: z.boolean().default(false),
   settle_early: z.boolean().default(true),
