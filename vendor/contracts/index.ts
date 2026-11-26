@@ -258,6 +258,11 @@ export const loginSecuritySettings = z.object({
 });
 export type LoginSecuritySettings = z.infer<typeof loginSecuritySettings>;
 export const loginSecurityResponse = z.object({ settings: loginSecuritySettings });
+export const accountLifecycleSettings = z.object({ parking_enabled: z.boolean() }).strict();
+export type AccountLifecycleSettings = z.infer<typeof accountLifecycleSettings>;
+export const accountParkingBody = z.object({ parked: z.boolean() }).strict();
+export const accountParkingResponse = z.object({ parking_enabled: z.boolean(), parked_at: z.number().int().nonnegative().nullable() });
+export type AccountParkingResponse = z.infer<typeof accountParkingResponse>;
 export const loginEvent = z.object({ id: z.number().int(), user_id: z.number().nullable(), username: z.string().nullable(), ip: z.string(), user_agent: z.string(), outcome: z.string(), created_at: z.number() });
 export type LoginEvent = z.infer<typeof loginEvent>;
 export const loginEventsResponse = z.object({ items: z.array(loginEvent), next_cursor: z.string().nullable() });

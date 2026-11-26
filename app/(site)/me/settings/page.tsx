@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import type { MeSettingsResponse, PreferencesResponse } from "@kyokkou/contracts";
+import type { MeSettingsResponse, PreferencesResponse, AccountParkingResponse } from "@kyokkou/contracts";
+import { AccountParking } from "@/components/account-parking";
 import { getBootstrap } from "@/lib/bootstrap";
 import { ServerFetchError, serverFetch } from "@/lib/api/server";
 import { AccountPanel, PreferencesPanel } from "@/components/settings-panels";
@@ -17,10 +18,12 @@ export default async function SettingsPage() {
 
   let settings: MeSettingsResponse;
   let preferences: PreferencesResponse;
+  let parking: AccountParkingResponse;
   try {
-    [settings, preferences] = await Promise.all([
+    [settings, preferences, parking] = await Promise.all([
       serverFetch<MeSettingsResponse>("/api/v1/me/settings"),
       serverFetch<PreferencesResponse>("/api/v1/me/preferences"),
+      serverFetch<AccountParkingResponse>("/api/v1/me/lifecycle"),
     ]);
   } catch (error) {
     const message =
@@ -44,6 +47,7 @@ export default async function SettingsPage() {
       />
       <div className="grid gap-6">
         <AccountPanel settings={settings} />
+        <AccountParking initial={parking} />
         <PreferencesPanel initial={preferences} />
       </div>
     </>
