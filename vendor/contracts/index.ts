@@ -251,6 +251,20 @@ export const bootstrap = z.object({
 });
 export type Bootstrap = z.infer<typeof bootstrap>;
 
+export const loginSecuritySettings = z.object({
+  enabled: z.boolean(), max_failures_per_ip: z.number().int().min(1).max(10000),
+  max_failures_per_account: z.number().int().min(1).max(10000),
+  window_minutes: z.number().int().min(1).max(1440), retention_days: z.number().int().min(1).max(3650),
+});
+export type LoginSecuritySettings = z.infer<typeof loginSecuritySettings>;
+export const loginSecurityResponse = z.object({ settings: loginSecuritySettings });
+export const loginEvent = z.object({ id: z.number().int(), user_id: z.number().nullable(), username: z.string().nullable(), ip: z.string(), user_agent: z.string(), outcome: z.string(), created_at: z.number() });
+export type LoginEvent = z.infer<typeof loginEvent>;
+export const loginEventsResponse = z.object({ items: z.array(loginEvent), next_cursor: z.string().nullable() });
+export type LoginEventsResponse = z.infer<typeof loginEventsResponse>;
+export const sharedIpsResponse = z.object({ items: z.array(z.object({ ip: z.string(), users: z.number().int(), last_login_at: z.number() })) });
+export type SharedIpsResponse = z.infer<typeof sharedIpsResponse>;
+
 export const downloadRulesResponse = z.object({
   version: z.number().int().min(0), markdown: z.string(), published_at: z.number().nullable(),
   enabled: z.boolean(), accepted: z.boolean(), required: z.boolean(),
