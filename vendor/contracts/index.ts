@@ -296,6 +296,9 @@ export const inactivityPreviewResponse = z.object({ evaluated_at: z.number(), ne
   })),
 });
 export type InactivityPreviewResponse = z.infer<typeof inactivityPreviewResponse>;
+export const lifecycleMailSettingsBody = z.object({ enabled: z.boolean(), revision: z.number().int().nonnegative() }).strict();
+export const lifecycleMailStatus = lifecycleMailSettingsBody.extend({ smtp_available: z.boolean(), pending: z.number(), failed: z.number(), sent: z.number() });
+export type LifecycleMailStatus = z.infer<typeof lifecycleMailStatus>;
 export const loginEvent = z.object({ id: z.number().int(), user_id: z.number().nullable(), username: z.string().nullable(), ip: z.string(), user_agent: z.string(), outcome: z.string(), created_at: z.number() });
 export type LoginEvent = z.infer<typeof loginEvent>;
 export const loginEventsResponse = z.object({ items: z.array(loginEvent), next_cursor: z.string().nullable() });
