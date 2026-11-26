@@ -299,6 +299,27 @@ export type InactivityPreviewResponse = z.infer<typeof inactivityPreviewResponse
 export const lifecycleMailSettingsBody = z.object({ enabled: z.boolean(), revision: z.number().int().nonnegative() }).strict();
 export const lifecycleMailStatus = lifecycleMailSettingsBody.extend({ smtp_available: z.boolean(), pending: z.number(), failed: z.number(), sent: z.number() });
 export type LifecycleMailStatus = z.infer<typeof lifecycleMailStatus>;
+export const accountErasurePolicy = z.object({
+  retention_days: z.number().int().min(1).max(36500),
+  notice_days: z.number().int().min(1).max(3650),
+  exempt_rank: z.number().int().min(1).max(1000000),
+}).strict();
+export const accountErasureSettings = z.object({ enabled: z.boolean(), revision: z.number().int().nonnegative(), policy: accountErasurePolicy }).strict();
+export type AccountErasureSettings = z.infer<typeof accountErasureSettings>;
+export const saveAccountErasureBody = accountErasureSettings.extend({ preview_token: z.string().min(32).max(128).optional() });
+export const previewAccountErasureBody = z.object({ policy: accountErasurePolicy,
+  after_id: z.number().int().nonnegative().default(0), limit: z.number().int().min(1).max(100).default(50) }).strict();
+export const accountErasurePreviewResponse = z.object({ evaluated_at: z.number(), revision: z.number(), enabled: z.boolean(),
+  next_cursor: z.number().nullable(), preview_token: z.string().optional(),
+  items: z.array(z.object({ user_id: z.number(), username: z.string(), status: z.string(),
+    disabled_at: z.number().nullable(), retention_until: z.number().nullable(), notified_at: z.number().nullable(),
+    erase_at: z.number().nullable(), anonymized_at: z.number().nullable(),
+    action: z.enum(["none", "notify", "wait", "anonymize", "blocked", "anonymized"]),
+    reason: z.enum(["not_inactivity_suspended", "staff_exempt", "rank_exempt", "class_unknown", "retention", "eligible", "blocked", "anonymized"]),
+    blockers: z.array(z.string()),
+  })),
+});
+export type AccountErasurePreviewResponse = z.infer<typeof accountErasurePreviewResponse>;
 export const loginEvent = z.object({ id: z.number().int(), user_id: z.number().nullable(), username: z.string().nullable(), ip: z.string(), user_agent: z.string(), outcome: z.string(), created_at: z.number() });
 export type LoginEvent = z.infer<typeof loginEvent>;
 export const loginEventsResponse = z.object({ items: z.array(loginEvent), next_cursor: z.string().nullable() });

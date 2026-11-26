@@ -65,7 +65,7 @@ export function AccountLifecyclePreview({ initial, initialState }: { initial: In
     finally { setBusy(false); }
   }
   return <>
-    <Panel title="不活跃通知与自动停用" description="默认关闭。先预览再启用；仅发送站内通知和停用账号，历史发布与账本保留。">
+    <Panel title="不活跃通知与自动停用" description="默认关闭。按配置发送站内和邮件通知，到期停用仍不活跃的账号。">
       {error && <Notice tone="warn">{error}</Notice>}{message && <Notice tone="info">{message}</Notice>}
       <p className="mb-4 text-sm">当前已保存策略：<strong>{saved.enabled ? "已启用" : "已关闭"}</strong> · 版本 {saved.revision}</p>
       <form className="grid items-end gap-3 sm:grid-cols-2 lg:grid-cols-3" onSubmit={(event) => { event.preventDefault(); void preview(draft.policy); }}>
