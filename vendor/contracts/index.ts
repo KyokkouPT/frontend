@@ -123,6 +123,7 @@ export const siteRegistration = z.object({
   closed_registration_mode: z.enum(["auto", "form", "message"]),
   invite_require_email: z.boolean(),
   invite_require_username: z.boolean(),
+  invite_ttl_hours: z.number().int().min(1).max(8760),
   verification: registrationVerification,
 });
 export type SiteRegistration = z.infer<typeof siteRegistration>;
@@ -1183,6 +1184,7 @@ export const staffSettings = z.object({
     closed_registration_mode: z.enum(["auto", "form", "message"]),
     invite_require_email: z.boolean(),
     invite_require_username: z.boolean(),
+    invite_ttl_hours: z.number().int().min(1).max(8760),
     verification: registrationVerification,
     verification_token_ttl_hours: z.number().int().min(1).max(720),
     verification_cooldown_minutes: z.number().int().min(1).max(1440).default(15),

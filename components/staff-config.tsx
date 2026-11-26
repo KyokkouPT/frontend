@@ -153,6 +153,10 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
             />
             生成邀请码时要求填写预注册用户名
           </label>
+          <Field label="邀请有效期（小时）" htmlFor="registration-invite-ttl" hint="1–8760 小时，新生成的邀请码使用此期限。">
+            <Input id="registration-invite-ttl" type="number" min={1} max={8760} required value={settings.registration.invite_ttl_hours}
+              onChange={(event) => patch("registration", { invite_ttl_hours: Number(event.target.value) })} />
+          </Field>
           <Field label="关闭注册时的提示" htmlFor="registration-closed" hint="支持 Markdown：标题、列表、链接、引用、代码块、表格">
             <Textarea
               id="registration-closed"

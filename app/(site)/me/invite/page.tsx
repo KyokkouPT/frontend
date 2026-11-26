@@ -39,11 +39,12 @@ export default async function InvitePage() {
     <>
       <PageHeader
         title="邀请"
-        description="邀请码 30 天内有效；注册成功后邀请人会收到站内通知。"
+        description="生成一次性邀请码，注册成功后邀请人会收到站内通知。"
       />
       <Panel title="我的邀请码">
         <InviteManager
           initial={data}
+          ttlHours={bootstrap.site.registration.invite_ttl_hours}
           requireEmail={bootstrap.site.registration.invite_require_email}
           requireUsername={bootstrap.site.registration.invite_require_username}
         />

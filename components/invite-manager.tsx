@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { InviteItem, InvitesResponse } from "@kyokkou/contracts";
 import { ApiClientError, apiPost } from "@/lib/api/client";
-import { formatDate, formatRelativeTime } from "@/lib/format";
+import { formatRelativeTime } from "@/lib/format";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { EmptyState } from "./ui/empty-state";
@@ -15,10 +15,12 @@ export function InviteManager({
   initial,
   requireEmail,
   requireUsername,
+  ttlHours,
 }: {
   initial: InvitesResponse;
   requireEmail: boolean;
   requireUsername: boolean;
+  ttlHours: number;
 }) {
   const router = useRouter();
   const [items, setItems] = useState<InviteItem[]>(initial.items);
@@ -73,7 +75,7 @@ export function InviteManager({
         <Badge tone="accent">
           {unusedCount}/{initial.quota_total} 未使用
         </Badge>
-        <span className="text-xs text-fg-2">邀请码 30 天内有效，一次性使用。</span>
+        <span className="text-xs text-fg-2">新邀请码 {ttlHours} 小时内有效，一次性使用。</span>
         <Button
           variant="primary"
           className="ml-auto"
@@ -142,7 +144,7 @@ export function InviteManager({
                 {item.status === "unused" ? "未使用" : "已使用"}
               </Badge>
               <span className="text-2xs text-fg-2">
-                创建 {formatRelativeTime(item.created_at)} · 到期 {formatDate(item.expires_at)}
+                创建 {formatRelativeTime(item.created_at)} · 到期 {new Date(item.expires_at).toLocaleString("zh-CN", { hour12: false })}
               </span>
               {item.invited_user && (
                 <span className="text-2xs text-fg-2">已邀请：{item.invited_user}</span>
