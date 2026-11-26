@@ -247,8 +247,20 @@ export const bootstrap = z.object({
   counts: bootstrapCounts,
   me: userSummary.nullable(),
   config_version: z.string(),
+  download_rules: z.object({ version: z.number().int(), required: z.boolean() }).optional(),
 });
 export type Bootstrap = z.infer<typeof bootstrap>;
+
+export const downloadRulesResponse = z.object({
+  version: z.number().int().min(0), markdown: z.string(), published_at: z.number().nullable(),
+  enabled: z.boolean(), accepted: z.boolean(), required: z.boolean(),
+});
+export type DownloadRulesResponse = z.infer<typeof downloadRulesResponse>;
+export const staffDownloadRulesResponse = downloadRulesResponse.extend({ draft_markdown: z.string(), draft_revision: z.number().int().min(0) });
+export type StaffDownloadRulesResponse = z.infer<typeof staffDownloadRulesResponse>;
+export const acceptDownloadRulesBody = z.object({ version: z.number().int().min(1) });
+export const saveDownloadRulesBody = z.object({ markdown: z.string().max(20000), revision: z.number().int().min(0), enabled: z.boolean().optional() });
+export const publishDownloadRulesBody = z.object({ revision: z.number().int().min(0) });
 
 /* ============================ 种子 / 首页 ============================ */
 

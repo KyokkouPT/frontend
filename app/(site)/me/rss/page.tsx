@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import type { RssResponse } from "@kyokkou/contracts";
 import { getBootstrap } from "@/lib/bootstrap";
 import { ServerFetchError, serverFetch } from "@/lib/api/server";
@@ -40,6 +41,7 @@ export default async function RssPage() {
       />
 
       <Panel title="个人 RSS 地址" description="地址包含个人 passkey，请勿公开分享">
+        {bootstrap.download_rules?.required && <Notice tone="warn" className="mb-4">RSS 当前会拒绝响应。<Link className="underline" href="/download-rules">先确认下载规则</Link>后再订阅。</Notice>}
         <div className="flex flex-wrap items-center gap-2">
           <code className="min-w-0 flex-1 rounded-sm bg-surface-2 px-2.5 py-2 text-xs leading-relaxed break-all">
             {rss.url}

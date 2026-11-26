@@ -7,6 +7,7 @@ import { ServerFetchError, serverFetch } from "@/lib/api/server";
 import { formatBytes, formatDate, formatNumber, formatRelativeTime } from "@/lib/format";
 import { Breadcrumbs, PageHeader } from "@/components/page-header";
 import { Notice } from "@/components/notice";
+import { DownloadLink } from "@/components/download-link";
 import { PromoBadge } from "@/components/promo-badge";
 import { ZeroBonusBadge } from "@/components/zero-bonus-badge";
 import { ZeroBonusToggle } from "@/components/zero-bonus-toggle";
@@ -67,13 +68,14 @@ export default async function TorrentDetailPage({
         }
         description={`${detail.section.name} · ${detail.category.name} · ${formatBytes(detail.size)}`}
         actions={
-          <a
+          <DownloadLink
             href={downloadHref}
+            enabled={Boolean(me)}
             className="inline-flex h-10 items-center gap-2 rounded-sm border border-accent bg-accent px-4 text-base font-semibold text-accent-ink transition hover:brightness-110"
           >
             {me ? <Download className="size-4" /> : <LogIn className="size-4" />}
             {me ? "下载种子" : "登录后下载"}
-          </a>
+          </DownloadLink>
         }
       />
 

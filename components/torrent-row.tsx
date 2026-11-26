@@ -7,6 +7,7 @@ import { formatBytes, formatRelativeTime } from "@/lib/format";
 import { Avatar } from "./ui/avatar";
 import { PromoBadge } from "./promo-badge";
 import { ZeroBonusBadge } from "./zero-bonus-badge";
+import { DownloadLink } from "./download-link";
 
 /** 种子列表行：标题进详情，下载按钮按登录态指向下载或登录。 */
 export function TorrentRow({ torrent, canDownload = false }: { torrent: TorrentSummary; canDownload?: boolean }) {
@@ -95,13 +96,14 @@ export function TorrentRow({ torrent, canDownload = false }: { torrent: TorrentS
       </div>
 
       <div className="grid place-items-center">
-        <a
+        <DownloadLink
           href={actionHref}
-          aria-label={canDownload ? `下载种子 ${torrent.name}` : "登录后下载"}
+          label={canDownload ? `下载种子 ${torrent.name}` : "登录后下载"}
+          enabled={canDownload}
           className="grid size-11 place-items-center rounded-sm text-fg-2 transition-colors hover:bg-accent/12 hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent md:size-[34px]"
         >
           {canDownload ? <Download className="size-4" /> : <LogIn className="size-4" />}
-        </a>
+        </DownloadLink>
       </div>
     </article>
   );
