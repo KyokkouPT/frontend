@@ -263,6 +263,29 @@ export type AccountLifecycleSettings = z.infer<typeof accountLifecycleSettings>;
 export const accountParkingBody = z.object({ parked: z.boolean() }).strict();
 export const accountParkingResponse = z.object({ parking_enabled: z.boolean(), parked_at: z.number().int().nonnegative().nullable() });
 export type AccountParkingResponse = z.infer<typeof accountParkingResponse>;
+export const accountLifecyclePreviewPolicy = z.object({
+  no_transfer_days: z.number().int().min(0).max(36500),
+  inactive_days: z.number().int().min(0).max(36500),
+  parked_days: z.number().int().min(0).max(36500),
+  notice_days: z.number().int().min(1).max(3650),
+  exempt_rank: z.number().int().min(1).max(1000000),
+}).strict().superRefine((value, ctx) => {
+  for (const key of ["no_transfer_days", "inactive_days", "parked_days"] as const) {
+    if (value[key] > 0 && value[key] <= value.notice_days) ctx.addIssue({ code: "custom", path: [key], message: "停用阈值必须大于通知提前天数，或设为 0 关闭" });
+  }
+});
+export type AccountLifecyclePreviewPolicy = z.infer<typeof accountLifecyclePreviewPolicy>;
+export const accountLifecyclePreviewBody = z.object({ policy: accountLifecyclePreviewPolicy,
+  after_id: z.number().int().nonnegative().default(0), limit: z.number().int().min(1).max(100).default(50) }).strict();
+export const accountLifecyclePreviewResponse = z.object({
+  evaluated_at: z.number(), next_cursor: z.number().nullable(),
+  items: z.array(z.object({ user_id: z.number(), username: z.string(), status: z.string(), class_name: z.string().nullable(),
+    parked_at: z.number().nullable(), last_activity_at: z.number(), inactive_days: z.number(), threshold_days: z.number(),
+    action: z.enum(["none", "notify", "disable_candidate"]),
+    reason: z.enum(["status_exempt", "staff_exempt", "rank_exempt", "class_unknown", "threshold_disabled", "not_due", "no_transfer", "inactive", "parked"]),
+  })),
+});
+export type AccountLifecyclePreviewResponse = z.infer<typeof accountLifecyclePreviewResponse>;
 export const loginEvent = z.object({ id: z.number().int(), user_id: z.number().nullable(), username: z.string().nullable(), ip: z.string(), user_agent: z.string(), outcome: z.string(), created_at: z.number() });
 export type LoginEvent = z.infer<typeof loginEvent>;
 export const loginEventsResponse = z.object({ items: z.array(loginEvent), next_cursor: z.string().nullable() });
