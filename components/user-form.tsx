@@ -68,7 +68,8 @@ export function UserForm({
   const [downloadedGb, setDownloadedGb] = useState(user ? toGbText(user.downloaded) : "0");
   const [bonus, setBonus] = useState(user ? bonusText(user.bonus) : "0.00");
   const [inviteBalance, setInviteBalance] = useState(user ? String(user.invite_balance) : "0");
-  const [warnings, setWarnings] = useState(user ? String(user.warnings) : "0");
+  const [warningsDraft, setWarningsDraft] = useState<{ value: string; baseline: number } | null>(null);
+  const warnings = warningsDraft !== null && warningsDraft.baseline === (user?.warnings ?? 0) ? warningsDraft.value : String(user?.warnings ?? 0);
   const [customTitle, setCustomTitle] = useState(user?.custom_title ?? "");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -286,14 +287,14 @@ export function UserForm({
         )}
 
         {mode === "edit" && can("warnings") && (
-          <Field label="警告次数" htmlFor="user-warnings">
+          <Field label="警告次数" htmlFor="user-warnings" hint="直接重设总次数会取消现有逐条警告的自动到期任务。新增限期警告请使用下方表单。">
             <Input
               id="user-warnings"
               type="number"
               step="1"
               min="0"
               value={warnings}
-              onChange={(event) => setWarnings(event.target.value)}
+              onChange={(event) => setWarningsDraft({ value: event.target.value, baseline: user?.warnings ?? 0 })}
             />
           </Field>
         )}

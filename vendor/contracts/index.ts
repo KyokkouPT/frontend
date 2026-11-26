@@ -1397,6 +1397,16 @@ export const staffUpdateUserBody = z.object({
   class_key: z.string().min(1).max(32).optional(),
 });
 export type StaffUpdateUserBody = z.infer<typeof staffUpdateUserBody>;
+export const issueWarningBody = z.object({ reason: z.string().trim().min(2).max(1000).default("请遵守站点规则"), duration_days: z.number().int().min(0).max(3650).default(0) }).strict();
+export const userWarningsResponse = z.object({
+  total_warnings: z.number().int().nonnegative(), next_cursor: z.number().nullable(),
+  items: z.array(z.object({ id: z.number(), actor_id: z.number().nullable(), reason: z.string(), expires_at: z.number().nullable(),
+    expired_at: z.number().nullable(), revoked_at: z.number().nullable(), created_at: z.number() })),
+});
+export type UserWarningsResponse = z.infer<typeof userWarningsResponse>;
+export const issueWarningResponse = z.object({ ok: z.literal(true), status: userStatus, expires_at: z.number().nullable() });
+export const settleWarningsResponse = z.object({ ok: z.literal(true), expired: z.number().int().nonnegative() });
+export type SettleWarningsResponse = z.infer<typeof settleWarningsResponse>;
 
 
 /* ============================ 等级 / 权限节点 ============================ */

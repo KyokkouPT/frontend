@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import type { ClassesResponse, StaffUsersResponse } from "@kyokkou/contracts";
+import type { ClassesResponse, StaffUsersResponse, UserWarningsResponse } from "@kyokkou/contracts";
+import { UserWarnings } from "@/components/user-warnings";
 import { getBootstrap } from "@/lib/bootstrap";
 import { ServerFetchError, serverFetch } from "@/lib/api/server";
 import { Notice } from "@/components/notice";
@@ -29,15 +30,19 @@ export default async function EditUserPage({
 
   const { id } = await params;
   const numericId = Number(id);
+  if (!Number.isSafeInteger(numericId) || numericId < 1) notFound();
 
   let data: StaffUsersResponse;
+  let warnings: UserWarningsResponse;
   let classes: ClassesResponse["items"] = [];
   try {
-    [data, { items: classes }] = await Promise.all([
+    [data, { items: classes }, warnings] = await Promise.all([
       serverFetch<StaffUsersResponse>("/api/v1/staff/users"),
       serverFetch<ClassesResponse>("/api/v1/staff/users/classes"),
+      serverFetch<UserWarningsResponse>(`/api/v1/staff/users/${String(numericId)}/warnings`),
     ]);
   } catch (error) {
+    if (error instanceof ServerFetchError && error.status === 404) notFound();
     const message =
       error instanceof ServerFetchError
         ? `后端返回 ${String(error.status)}：${error.message}`
@@ -63,6 +68,9 @@ export default async function EditUserPage({
         </Link>
       </p>
       <UserForm mode="edit" user={user} classes={classes} permissions={bootstrap.permissions} />
+      <div className="mt-5"><UserWarnings key={user.id} userId={user.id} initial={warnings}
+        canIssue={bootstrap.permissions.includes("staff.user_warn") && bootstrap.me.id !== user.id}
+        canSettle={bootstrap.permissions.includes("staff.user_warn")} /></div>
     </>
   );
 }
