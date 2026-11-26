@@ -1,5 +1,9 @@
 # KyokkouPT · frontend
 
+测试在 Docker 内运行：`docker compose -f docker-compose.test.yml run --rm frontend-test`。
+测试依赖使用独立 volume，构建输出到 `.next-docker-test`，不覆盖原生开发服务的 `.next`。
+原生服务仍使用现有启动命令；仅隔离验收时通过 `NEXT_DIST_DIR` 指定独立的 Next 输出目录。
+
 通用、可配置、可自部署的私有 PT 站引擎前端。**独立 Git 仓库**，只通过 HTTP API 访问后端。
 
 - Next.js 16 App Router + React 19 + Tailwind v4 + TypeScript

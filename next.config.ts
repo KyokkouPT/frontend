@@ -10,6 +10,7 @@ import type { NextConfig } from "next";
 const apiOrigin = process.env.API_ORIGIN ?? "http://127.0.0.1:31001";
 
 const nextConfig: NextConfig = {
+  distDir: process.env.NEXT_DIST_DIR ?? ".next",
   reactStrictMode: true,
   // 本地开发时同时允许 localhost / 127.0.0.1 / LAN IP 访问 HMR 与字体资源。
   allowedDevOrigins: ["127.0.0.1", "localhost", "10.3.37.160"],
