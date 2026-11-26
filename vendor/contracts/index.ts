@@ -905,6 +905,7 @@ export type BtClientsResponse = z.infer<typeof btClientsResponse>;
 export const meSettingsResponse = z.object({
   username: z.string(),
   email: z.string(),
+  pending_email: z.string().nullable().default(null),
   passkey: z.string(),
   role,
   class_key: z.string(),
@@ -1121,6 +1122,7 @@ export const staffSettings = z.object({
     invite_require_username: z.boolean(),
     verification: registrationVerification,
     verification_token_ttl_hours: z.number().int().min(1).max(720),
+    verification_cooldown_minutes: z.number().int().min(1).max(1440).default(15),
   }),
   password_reset: z.object({
     enabled: z.boolean(),

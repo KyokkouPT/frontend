@@ -238,16 +238,17 @@ export function AccountPanel({ settings }: { settings: MeSettingsResponse }) {
       </Panel>
 
       <Panel title="邮箱与密码">
+        {settings.pending_email && <Notice tone="info">待验证邮箱：{settings.pending_email}。完成验证前继续使用原邮箱。</Notice>}
         <form
           className="grid gap-3"
           onSubmit={(event) => {
             event.preventDefault();
             void run("profile", async () => {
-              await apiFetch("/api/v1/me/settings", {
+              const result = await apiFetch<{ email_verification_required?: boolean }>("/api/v1/me/settings", {
                 method: "PUT",
                 body: JSON.stringify({ email }),
               });
-              setNotice("邮箱已更新");
+              setNotice(result.email_verification_required ? "验证邮件已发送，请验证新邮箱；当前邮箱保持有效" : "邮箱已更新");
               router.refresh();
             });
           }}

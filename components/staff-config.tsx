@@ -194,6 +194,11 @@ export function SettingsEditor({ initial }: { initial: StaffSettings }) {
               />
             </Field>
           )}
+          <Field label="验证邮件重发冷却（分钟）" htmlFor="registration-verification-cooldown" hint="同一账号共享冷却，默认 15 分钟">
+            <Input id="registration-verification-cooldown" type="number" min={1} max={1440}
+              value={String(settings.registration.verification_cooldown_minutes)}
+              onChange={(event) => patch("registration", { verification_cooldown_minutes: Number(event.target.value) })} />
+          </Field>
           <Field
             label="关闭注册时点击注册"
             htmlFor="registration-closed-mode"

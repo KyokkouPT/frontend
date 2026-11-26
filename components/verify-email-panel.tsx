@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import type { ResendVerificationResponse } from "@kyokkou/contracts";
 import { ApiClientError, apiPost } from "@/lib/api/client";
@@ -8,49 +8,41 @@ import { Button } from "./ui/button";
 import { Field, Input } from "./ui/field";
 import { Notice } from "./notice";
 
-type State = "verifying" | "ok" | "invalid";
+type State = "ready" | "verifying" | "ok" | "invalid";
 
-/** token → 校验 Promise（成功返回用户名，失败返回 null）；跨 StrictMode 重复挂载复用。 */
-const inflight = new Map<string, Promise<string | null>>();
-
-function verifyOnce(token: string): Promise<string | null> {
-  const existing = inflight.get(token);
-  if (existing) return existing;
-  const promise = apiPost<{ ok: true; username: string }>("/api/v1/auth/verify-email", { token })
-    .then((result) => result.username)
-    .catch(() => null);
-  inflight.set(token, promise);
-  return promise;
-}
-
-/** 邮箱验证落地页：自动消费 token；失败时可直接重发验证邮件。 */
+/** GET/navigation never consumes the token; only an explicit confirmation does. */
 export function VerifyEmailPanel({ token }: { token: string }) {
-  const [state, setState] = useState<State>(token ? "verifying" : "invalid");
+  const [state, setState] = useState<State>(token ? "ready" : "invalid");
   const [username, setUsername] = useState("");
   const [identifier, setIdentifier] = useState("");
   const [resent, setResent] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
-  useEffect(() => {
-    if (!token) return;
-    let alive = true;
-    // React StrictMode 会重复挂载 effect；token 一次性，两次请求会让第二次误判失效。
-    // 用模块级 Promise 共享同一次校验结果。
-    void verifyOnce(token).then((outcome) => {
-      if (!alive) return;
-      if (outcome) {
-        setUsername(outcome);
-        setIdentifier(outcome);
-        setState("ok");
-      } else {
-        setState("invalid");
-      }
-    });
-    return () => {
-      alive = false;
-    };
-  }, [token]);
+  async function verify() {
+    if (state !== "ready") return;
+    setState("verifying");
+    try {
+      const result = await apiPost<{ ok: true; username: string }>("/api/v1/auth/verify-email", { token });
+      setUsername(result.username);
+      setIdentifier(result.username);
+      setState("ok");
+    } catch {
+      setState("invalid");
+    }
+  }
+
+  if (state === "ready") {
+    return (
+      <>
+        <h1 className="text-2xl font-semibold tracking-[-0.02em]">确认验证邮箱</h1>
+        <p className="mt-1.5 text-sm text-fg-1">点击下方按钮完成验证。仅打开此页面不会使用验证链接。</p>
+        <Button variant="primary" size="lg" className="mt-6 w-full" onClick={() => void verify()}>
+          确认验证邮箱
+        </Button>
+      </>
+    );
+  }
 
   async function resend(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
